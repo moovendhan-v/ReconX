@@ -1,0 +1,98 @@
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: bughunting-postgres
+    environment:
+      POSTGRES_DB: bughunting
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bughunting-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
+    container_name: bughunting-backend
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bughunting
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+      PYTHON_CORE_URL: http://python-core:8000
+      UPLOAD_DIR: /app/uploads
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+      - backend_uploads:/app/uploads
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      python-core:
+        condition: service_started
+    command: npm run dev
+
+  # Python Core Executor
+  python-core:
+    build:
+      context: ./python-core
+      dockerfile: ../docker/python-core.Dockerfile
+    container_name: bughunting-python-core
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./python-core:/app
+      - backend_uploads:/app/uploads:ro
+    command: python api.py
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend.Dockerfile
+      target: development
+    container_name: bughunting-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_uploads:
