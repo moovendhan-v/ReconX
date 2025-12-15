@@ -1,8 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Shield, Plus, AlertTriangle } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, AlertTriangle, ExternalLink, Calendar, Shield } from 'lucide-react';
+import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
+import { DashboardShell } from '@/components/dashboard/dashboard-shell';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { EnhancedTable } from '@/components/dashboard/enhanced-table/enhanced-table';
+import type { ColumnDef } from '@/components/dashboard/enhanced-table/table-column-customizer';
 import { cveService } from '../services/api.service';
 import type { CVE } from '../types';
+import { useAsyncOperation } from '../hooks/use-error-handler';
+import { ErrorBoundary } from '../components/error-boundary';
+import { ComponentErrorFallback } from '../components/error-fallback';
 
 const severityColors = {
   LOW: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -12,121 +21,223 @@ const severityColors = {
 };
 
 export default function CVEList() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { executeWithRetry } = useAsyncOperation();
+
   const [cves, setCves] = useState<CVE[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     loadCVEs();
-  }, [searchParams]);
+  }, []);
 
   const loadCVEs = async () => {
-    try {
-      setLoading(true);
-      const data = await cveService.getAll({
-        search: searchParams.get('search') || undefined,
+    setLoading(true);
+    
+    const result = await executeWithRetry(
+      () => cveService.getAll({
         page: 1,
-        limit: 50,
-      });
-      setCves(data.cves);
-    } catch (error) {
-      console.error('Failed to load CVEs:', error);
-    } finally {
-      setLoading(false);
+        limit: 1000, // Load more data for better table functionality
+      }),
+      {
+        maxRetries: 3,
+        delay: 1000,
+        context: {
+          component: 'CVEList',
+          action: 'Load CVEs',
+        },
+      }
+    );
+
+    if (result) {
+      setCves(result.cves);
+      setTotalCount(result.total);
     }
+    
+    setLoading(false);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (search) {
-      setSearchParams({ search });
-    } else {
-      setSearchParams({});
-    }
+  // Define table columns
+  const columns: ColumnDef[] = [
+    {
+      id: 'cveId',
+      header: 'CVE ID',
+      accessorKey: 'cveId',
+      enableSorting: true,
+      cell: ({ row }) => (
+        <div className="font-mono font-medium">
+          {row.cveId}
+        </div>
+      ),
+    },
+    {
+      id: 'title',
+      header: 'Title',
+      accessorKey: 'title',
+      enableSorting: true,
+      cell: ({ row }) => (
+        <div className="max-w-[300px]">
+          <div className="font-medium truncate">{row.title}</div>
+          <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+            {row.description}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'severity',
+      header: 'Severity',
+      accessorKey: 'severity',
+      enableSorting: true,
+      cell: ({ row }) => (
+        <Badge className={severityColors[row.severity as keyof typeof severityColors]}>
+          <Shield className="w-3 h-3 mr-1" />
+          {row.severity}
+        </Badge>
+      ),
+    },
+    {
+      id: 'cvssScore',
+      header: 'CVSS Score',
+      accessorKey: 'cvssScore',
+      enableSorting: true,
+      cell: ({ row }) => (
+        row.cvssScore ? (
+          <Badge variant="secondary">
+            {row.cvssScore}
+          </Badge>
+        ) : (
+          <span className="text-muted-foreground">N/A</span>
+        )
+      ),
+    },
+    {
+      id: 'publishedDate',
+      header: 'Published',
+      accessorKey: 'publishedDate',
+      enableSorting: true,
+      cell: ({ row }) => (
+        row.publishedDate ? (
+          <div className="flex items-center text-sm">
+            <Calendar className="w-3 h-3 mr-1" />
+            {new Date(row.publishedDate).toLocaleDateString()}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">Unknown</span>
+        )
+      ),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      enableSorting: false,
+      enableHiding: false,
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/dashboard/cves/${row.id}`);
+          }}
+        >
+          <ExternalLink className="w-4 h-4 mr-1" />
+          View
+        </Button>
+      ),
+    },
+  ];
+
+  // Define filter options
+  const filterOptions = [
+    {
+      id: 'severity',
+      label: 'Severity',
+      type: 'select' as const,
+      options: [
+        { value: 'LOW', label: 'Low' },
+        { value: 'MEDIUM', label: 'Medium' },
+        { value: 'HIGH', label: 'High' },
+        { value: 'CRITICAL', label: 'Critical' },
+      ],
+    },
+    {
+      id: 'publishedDate',
+      label: 'Published Date',
+      type: 'date' as const,
+    },
+  ];
+
+  const handleRowClick = (cve: CVE) => {
+    navigate(`/dashboard/cves/${cve.id}`);
+  };
+
+  const handleExport = (data: CVE[]) => {
+    const csvContent = [
+      ['CVE ID', 'Title', 'Severity', 'CVSS Score', 'Published Date', 'Description'].join(','),
+      ...data.map(cve => [
+        cve.cveId,
+        `"${cve.title.replace(/"/g, '""')}"`,
+        cve.severity,
+        cve.cvssScore || 'N/A',
+        cve.publishedDate || 'Unknown',
+        `"${cve.description.replace(/"/g, '""')}"`,
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cves-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Header */}
-      <header className="glass border-b border-slate-700/50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8 text-primary-400" />
-              <h1 className="text-2xl font-bold gradient-text">Bug Hunting Platform</h1>
-            </div>
-            <Link
-              to="/cves/new"
-              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add CVE</span>
+    <ErrorBoundary fallback={<ComponentErrorFallback />}>
+      <DashboardLayout title="CVEs" description="Manage and browse Common Vulnerabilities and Exposures">
+        <DashboardShell>
+        {/* Header Actions */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">CVE Database</h2>
+            <p className="text-muted-foreground">
+              Browse and manage {totalCount} Common Vulnerabilities and Exposures
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/dashboard/cves/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add CVE
             </Link>
-          </div>
+          </Button>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search */}
-        <form onSubmit={handleSearch} className="mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search CVEs by ID, title, or description..."
-              className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-        </form>
-
-        {/* CVE List */}
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-            <p className="mt-4 text-slate-400">Loading CVEs...</p>
-          </div>
-        ) : cves.length === 0 ? (
-          <div className="text-center py-12 glass rounded-xl">
-            <AlertTriangle className="w-16 h-16 text-slate-500 mx-auto mb-4" />
-            <p className="text-slate-400 text-lg">No CVEs found</p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {cves.map((cve) => (
-              <Link
-                key={cve.id}
-                to={`/cves/${cve.id}`}
-                className="glass rounded-xl p-6 hover:bg-slate-800/60 transition-all hover:scale-[1.01] border border-slate-700/50"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-xl font-bold text-white">{cve.cveId}</h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold border ${
-                          severityColors[cve.severity]
-                        }`}
-                      >
-                        {cve.severity}
-                      </span>
-                      {cve.cvssScore && (
-                        <span className="px-2 py-1 bg-slate-700/50 rounded text-xs text-slate-300">
-                          CVSS: {cve.cvssScore}
-                        </span>
-                      )}
-                    </div>
-                    <h4 className="text-lg text-slate-300 mb-2">{cve.title}</h4>
-                    <p className="text-slate-400 line-clamp-2">{cve.description}</p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+        {/* Enhanced CVE Table */}
+        <EnhancedTable
+          data={cves}
+          columns={columns}
+          filterOptions={filterOptions}
+          tableId="cve-list"
+          defaultPageSize={20}
+          defaultSortColumn="publishedDate"
+          defaultSortDirection="desc"
+          onRowClick={handleRowClick}
+          isLoading={loading}
+          showExport={true}
+          exportData={handleExport}
+          emptyState={
+            <div className="flex flex-col items-center justify-center text-muted-foreground py-12">
+              <AlertTriangle className="w-16 h-16 mb-4" />
+              <p className="text-lg font-medium">No CVEs found</p>
+              <p className="text-sm">Try adjusting your search or filters</p>
+            </div>
+          }
+        />
+        </DashboardShell>
+      </DashboardLayout>
+    </ErrorBoundary>
   );
 }

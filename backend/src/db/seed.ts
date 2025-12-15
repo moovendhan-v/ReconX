@@ -1,7 +1,14 @@
-import { db, schema } from './db';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
 
 async function seed() {
   console.log('🌱 Seeding database...');
+
+  // Initialize database connection
+  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/bughunting';
+  const client = postgres(connectionString);
+  const db = drizzle(client, { schema });
 
   try {
     // Create sample CVE
@@ -54,6 +61,8 @@ exploit.py -t http://target.com -c "id"`,
   } catch (error) {
     console.error('❌ Seeding failed:', error);
     throw error;
+  } finally {
+    await client.end();
   }
 
   process.exit(0);
