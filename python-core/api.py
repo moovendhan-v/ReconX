@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FastAPI service for POC execution
+FastAPI service for POC execution with real-time log streaming
 """
 
 from fastapi import FastAPI, HTTPException
@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import uvicorn
 from executor import executor
+import uuid
 
 app = FastAPI(title="Bug Hunting - Python Core", version="1.0.0")
 
@@ -27,6 +28,7 @@ class ExecuteRequest(BaseModel):
     targetUrl: Optional[str] = None
     command: Optional[str] = None
     additionalParams: Optional[Dict[str, Any]] = None
+    executionId: Optional[str] = None  # For log streaming
 
 
 class ExecuteResponse(BaseModel):
@@ -34,6 +36,7 @@ class ExecuteResponse(BaseModel):
     output: str
     error: Optional[str] = None
     return_code: int
+    execution_id: str
 
 
 @app.get("/health")
@@ -45,7 +48,7 @@ async def health_check():
 @app.post("/execute", response_model=ExecuteResponse)
 async def execute_poc(request: ExecuteRequest):
     """
-    Execute a POC script
+    Execute a POC script with real-time log streaming
     
     Args:
         request: Execution request with script path and parameters
@@ -54,6 +57,9 @@ async def execute_poc(request: ExecuteRequest):
         Execution result
     """
     try:
+        # Generate execution ID if not provided
+        execution_id = request.executionId or str(uuid.uuid4())
+        
         # Determine language from file extension
         if request.scriptPath.endswith('.py'):
             language = 'python'
@@ -62,16 +68,20 @@ async def execute_poc(request: ExecuteRequest):
         else:
             raise HTTPException(status_code=400, detail="Unsupported script type")
         
-        # Execute
+        # Execute with log streaming
         result = executor.execute(
             script_path=request.scriptPath,
             language=language,
+            execution_id=execution_id,
             targetUrl=request.targetUrl,
             command=request.command,
             additionalParams=request.additionalParams
         )
         
-        return ExecuteResponse(**result)
+        return ExecuteResponse(
+            execution_id=execution_id,
+            **result
+        )
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

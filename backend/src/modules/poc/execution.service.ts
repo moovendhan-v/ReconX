@@ -1,20 +1,24 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { exec } from 'child_process';
-import { promisify } from 'util';
 import { eq } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { PocService } from './poc.service';
 import { executionLogs } from '../../db/schema';
 import { ExecutePOCInput, ExecuteResponse, ExecutionStatus } from './dto/poc.dto';
-
-const execAsync = promisify(exec);
+import { ExecutionLogsGateway } from './execution-logs.gateway';
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ExecutionService {
+  private readonly pythonCoreUrl: string;
+
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly pocService: PocService,
-  ) { }
+    private readonly executionLogsGateway: ExecutionLogsGateway,
+  ) {
+    this.pythonCoreUrl = process.env.PYTHON_CORE_URL || 'http://python-core:8000';
+  }
 
   async executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse> {
     const db = this.databaseService.getDb();
@@ -23,7 +27,10 @@ export class ExecutionService {
     const poc = await this.pocService.findOne(pocId);
     const scriptPath = poc.scriptPath;
 
-    // Build the full command: python3 <script_path> -t <target_url> -c "<command>"
+    // Generate unique execution ID
+    const executionId = uuidv4();
+
+    // Full command for display purposes
     const fullCommand = `python3 ${scriptPath} -t ${input.targetUrl} -c "${input.command}"`;
 
     // Create initial execution log
@@ -38,28 +45,32 @@ export class ExecutionService {
       .returning();
 
     try {
+      console.log(`[POC Execution] Execution ID: ${executionId}`);
       console.log(`[POC Execution] Script: ${scriptPath}`);
-      console.log(`[POC Execution] Command: ${fullCommand}`);
+      console.log(`[POC Execution] Calling python-core: ${this.pythonCoreUrl}/execute`);
 
-      // Execute with timeout (30 seconds)
-      const { stdout, stderr } = await execAsync(fullCommand, {
-        timeout: 30000,
-        cwd: process.cwd(),
-        env: {
-          ...process.env,
-          TARGET_URL: input.targetUrl,
-          POC_ID: pocId,
+      // Call python-core API
+      const response = await axios.post(
+        `${this.pythonCoreUrl}/execute`,
+        {
+          scriptPath,
+          targetUrl: input.targetUrl,
+          command: input.command,
+          executionId,
         },
-      });
+        {
+          timeout: 35000, // 35 seconds
+        }
+      );
 
-      const output = stdout || stderr || 'No output';
-      const success = !stderr || stderr.trim() === '';
+      const result = response.data;
+      const success = result.success && (!result.error || result.error.trim() === '');
 
       // Update execution log with results
       await db
         .update(executionLogs)
         .set({
-          output,
+          output: result.output || '',
           status: success ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED,
         })
         .where(eq(executionLogs.id, executionLog.id));
@@ -68,8 +79,8 @@ export class ExecutionService {
         message: success ? 'POC executed successfully' : 'POC execution completed with errors',
         result: {
           success,
-          output,
-          error: stderr || undefined,
+          output: result.output || '',
+          error: result.error || undefined,
           executedScriptPath: scriptPath,
         },
         log: {
@@ -77,15 +88,17 @@ export class ExecutionService {
           pocId,
           targetUrl: input.targetUrl,
           command: fullCommand,
-          output,
+          output: result.output || '',
           status: success ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED,
           executedAt: executionLog.executedAt,
         },
       };
     } catch (error) {
-      const errorMessage = error.message || 'Unknown execution error';
-      const isTimeout = error.signal === 'SIGTERM' || errorMessage.includes('timeout');
+      const errorMessage = error.response?.data?.detail || error.message || 'Unknown execution error';
+      const isTimeout = error.code === 'ECONNABORTED' || errorMessage.includes('timeout');
       const status = isTimeout ? ExecutionStatus.TIMEOUT : ExecutionStatus.FAILED;
+
+      console.error(`[POC Execution] Error: ${errorMessage}`);
 
       // Update execution log with error
       await db
