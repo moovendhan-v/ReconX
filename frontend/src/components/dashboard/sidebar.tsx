@@ -129,20 +129,20 @@ export function DashboardSidebar() {
   })
 
   return (
-    <nav 
+    <nav
       className="flex h-screen w-64 flex-col bg-card border-r border-border shadow-lg"
       role="navigation"
       aria-label="Main navigation"
       id="navigation"
     >
       <div className="flex h-14 items-center border-b border-border px-4 bg-gradient-to-r from-card to-muted/20">
-        <Link 
-          to="/dashboard" 
+        <Link
+          to="/dashboard"
           className="flex items-center gap-2 font-semibold group"
           aria-label={generateAriaLabel.navigation('dashboard home')}
         >
-          <LayoutDashboard 
-            className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" 
+          <LayoutDashboard
+            className="h-6 w-6 text-primary group-hover:scale-110 transition-transform"
             aria-hidden="true"
           />
           <span className="text-primary font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
@@ -171,29 +171,36 @@ export function DashboardSidebar() {
         <div className="px-2 py-2">
           <h3 className="mb-2 px-2 text-xs font-semibold uppercase text-muted-foreground tracking-wider">Main</h3>
           <nav className="grid gap-1">
-            {mainRoutes.map((route) => (
-              <Button
-                key={route.href}
-                variant="ghost"
-                asChild
-                className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 group animate-fade-in justify-start h-auto',
-                  activeRoute === route.href || activeRoute.startsWith(`${route.href}/`)
-                    ? 'bg-accent text-primary shadow-sm border border-primary/20'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-                )}
-              >
-                <Link to={route.href}>
-                  <route.icon
-                    className={cn(
-                      'h-4 w-4 transition-transform group-hover:scale-110',
-                      activeRoute === route.href || activeRoute.startsWith(`${route.href}/`) ? 'text-primary' : '',
-                    )}
-                  />
-                  {route.title}
-                </Link>
-              </Button>
-            ))}
+            {mainRoutes.map((route) => {
+              // Special handling for Dashboard - only exact match
+              const isActive = route.href === '/dashboard'
+                ? activeRoute === '/dashboard'
+                : activeRoute === route.href || activeRoute.startsWith(`${route.href}/`);
+
+              return (
+                <Button
+                  key={route.href}
+                  variant="ghost"
+                  asChild
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 group animate-fade-in justify-start h-auto',
+                    isActive
+                      ? 'bg-accent text-primary shadow-sm border border-primary/20'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+                  )}
+                >
+                  <Link to={route.href}>
+                    <route.icon
+                      className={cn(
+                        'h-4 w-4 transition-transform group-hover:scale-110',
+                        isActive ? 'text-primary' : '',
+                      )}
+                    />
+                    {route.title}
+                  </Link>
+                </Button>
+              );
+            })}
           </nav>
         </div>
 
