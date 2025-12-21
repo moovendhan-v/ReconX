@@ -14,13 +14,17 @@ export class ExecutionService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly pocService: PocService,
-  ) {}
+  ) { }
 
   async executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse> {
     const db = this.databaseService.getDb();
 
-    // Verify POC exists
+    // Verify POC exists and get script path
     const poc = await this.pocService.findOne(pocId);
+    const scriptPath = poc.scriptPath;
+
+    // Build the full command: python3 <script_path> -t <target_url> -c "<command>"
+    const fullCommand = `python3 ${scriptPath} -t ${input.targetUrl} -c "${input.command}"`;
 
     // Create initial execution log
     const [executionLog] = await db
@@ -28,17 +32,17 @@ export class ExecutionService {
       .values({
         pocId,
         targetUrl: input.targetUrl,
-        command: input.command,
+        command: fullCommand,
         status: ExecutionStatus.RUNNING,
       })
       .returning();
 
     try {
-      // Validate and sanitize command
-      const sanitizedCommand = this.sanitizeCommand(input.command, input.targetUrl);
-      
+      console.log(`[POC Execution] Script: ${scriptPath}`);
+      console.log(`[POC Execution] Command: ${fullCommand}`);
+
       // Execute with timeout (30 seconds)
-      const { stdout, stderr } = await execAsync(sanitizedCommand, {
+      const { stdout, stderr } = await execAsync(fullCommand, {
         timeout: 30000,
         cwd: process.cwd(),
         env: {
@@ -49,7 +53,7 @@ export class ExecutionService {
       });
 
       const output = stdout || stderr || 'No output';
-      const success = !stderr;
+      const success = !stderr || stderr.trim() === '';
 
       // Update execution log with results
       await db
@@ -66,12 +70,13 @@ export class ExecutionService {
           success,
           output,
           error: stderr || undefined,
+          executedScriptPath: scriptPath,
         },
         log: {
           id: executionLog.id,
           pocId,
           targetUrl: input.targetUrl,
-          command: input.command,
+          command: fullCommand,
           output,
           status: success ? ExecutionStatus.SUCCESS : ExecutionStatus.FAILED,
           executedAt: executionLog.executedAt,
@@ -97,64 +102,18 @@ export class ExecutionService {
           success: false,
           output: '',
           error: errorMessage,
+          executedScriptPath: scriptPath,
         },
         log: {
           id: executionLog.id,
           pocId,
           targetUrl: input.targetUrl,
-          command: input.command,
+          command: fullCommand,
           output: errorMessage,
           status,
           executedAt: executionLog.executedAt,
         },
       };
     }
-  }
-
-  private sanitizeCommand(command: string, targetUrl: string): string {
-    // Basic command sanitization
-    // Remove dangerous characters and commands
-    const dangerousPatterns = [
-      /rm\s+-rf/gi,
-      /sudo/gi,
-      /su\s+/gi,
-      /passwd/gi,
-      /shutdown/gi,
-      /reboot/gi,
-      /halt/gi,
-      /init\s+0/gi,
-      /init\s+6/gi,
-      />/gi, // Redirect output
-      /</gi, // Redirect input
-      /\|/gi, // Pipe
-      /;/gi, // Command separator
-      /&&/gi, // AND operator
-      /\|\|/gi, // OR operator
-      /`/gi, // Command substitution
-      /\$\(/gi, // Command substitution
-    ];
-
-    let sanitized = command;
-
-    // Check for dangerous patterns
-    for (const pattern of dangerousPatterns) {
-      if (pattern.test(sanitized)) {
-        throw new BadRequestException(`Command contains dangerous pattern: ${pattern.source}`);
-      }
-    }
-
-    // Replace placeholder with actual target URL
-    sanitized = sanitized.replace(/\$TARGET_URL/g, targetUrl);
-    sanitized = sanitized.replace(/\{TARGET_URL\}/g, targetUrl);
-
-    // Ensure command starts with allowed executables
-    const allowedExecutables = ['python', 'python3', 'node', 'bash', 'sh', 'curl', 'wget'];
-    const firstWord = sanitized.trim().split(' ')[0];
-    
-    if (!allowedExecutables.includes(firstWord)) {
-      throw new BadRequestException(`Executable '${firstWord}' is not allowed`);
-    }
-
-    return sanitized;
   }
 }

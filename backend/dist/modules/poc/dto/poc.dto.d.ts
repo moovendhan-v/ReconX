@@ -49,12 +49,12 @@ export declare class UpdatePOCInput {
 export declare class ExecutePOCInput {
     targetUrl: string;
     command: string;
-    additionalParams?: string;
 }
 export declare class ExecutionResult {
     success: boolean;
     output: string;
     error?: string;
+    executedScriptPath?: string;
 }
 export declare class ExecuteResponse {
     message: string;

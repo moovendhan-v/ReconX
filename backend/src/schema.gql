@@ -121,7 +121,6 @@ input CreateScanInput {
 scalar DateTime
 
 input ExecutePOCInput {
-  additionalParams: String
   command: String!
   targetUrl: String!
 }
@@ -145,6 +144,7 @@ type ExecutionLog {
 
 type ExecutionResult {
   error: String
+  executedScriptPath: String
   output: String!
   success: Boolean!
 }

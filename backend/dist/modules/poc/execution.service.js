@@ -27,18 +27,21 @@ let ExecutionService = class ExecutionService {
     async executePOC(pocId, input) {
         const db = this.databaseService.getDb();
         const poc = await this.pocService.findOne(pocId);
+        const scriptPath = poc.scriptPath;
+        const fullCommand = `python3 ${scriptPath} -t ${input.targetUrl} -c "${input.command}"`;
         const [executionLog] = await db
             .insert(schema_1.executionLogs)
             .values({
             pocId,
             targetUrl: input.targetUrl,
-            command: input.command,
+            command: fullCommand,
             status: poc_dto_1.ExecutionStatus.RUNNING,
         })
             .returning();
         try {
-            const sanitizedCommand = this.sanitizeCommand(input.command, input.targetUrl);
-            const { stdout, stderr } = await execAsync(sanitizedCommand, {
+            console.log(`[POC Execution] Script: ${scriptPath}`);
+            console.log(`[POC Execution] Command: ${fullCommand}`);
+            const { stdout, stderr } = await execAsync(fullCommand, {
                 timeout: 30000,
                 cwd: process.cwd(),
                 env: {
@@ -48,7 +51,7 @@ let ExecutionService = class ExecutionService {
                 },
             });
             const output = stdout || stderr || 'No output';
-            const success = !stderr;
+            const success = !stderr || stderr.trim() === '';
             await db
                 .update(schema_1.executionLogs)
                 .set({
@@ -62,12 +65,13 @@ let ExecutionService = class ExecutionService {
                     success,
                     output,
                     error: stderr || undefined,
+                    executedScriptPath: scriptPath,
                 },
                 log: {
                     id: executionLog.id,
                     pocId,
                     targetUrl: input.targetUrl,
-                    command: input.command,
+                    command: fullCommand,
                     output,
                     status: success ? poc_dto_1.ExecutionStatus.SUCCESS : poc_dto_1.ExecutionStatus.FAILED,
                     executedAt: executionLog.executedAt,
@@ -91,53 +95,19 @@ let ExecutionService = class ExecutionService {
                     success: false,
                     output: '',
                     error: errorMessage,
+                    executedScriptPath: scriptPath,
                 },
                 log: {
                     id: executionLog.id,
                     pocId,
                     targetUrl: input.targetUrl,
-                    command: input.command,
+                    command: fullCommand,
                     output: errorMessage,
                     status,
                     executedAt: executionLog.executedAt,
                 },
             };
         }
-    }
-    sanitizeCommand(command, targetUrl) {
-        const dangerousPatterns = [
-            /rm\s+-rf/gi,
-            /sudo/gi,
-            /su\s+/gi,
-            /passwd/gi,
-            /shutdown/gi,
-            /reboot/gi,
-            /halt/gi,
-            /init\s+0/gi,
-            /init\s+6/gi,
-            />/gi,
-            /</gi,
-            /\|/gi,
-            /;/gi,
-            /&&/gi,
-            /\|\|/gi,
-            /`/gi,
-            /\$\(/gi,
-        ];
-        let sanitized = command;
-        for (const pattern of dangerousPatterns) {
-            if (pattern.test(sanitized)) {
-                throw new common_1.BadRequestException(`Command contains dangerous pattern: ${pattern.source}`);
-            }
-        }
-        sanitized = sanitized.replace(/\$TARGET_URL/g, targetUrl);
-        sanitized = sanitized.replace(/\{TARGET_URL\}/g, targetUrl);
-        const allowedExecutables = ['python', 'python3', 'node', 'bash', 'sh', 'curl', 'wget'];
-        const firstWord = sanitized.trim().split(' ')[0];
-        if (!allowedExecutables.includes(firstWord)) {
-            throw new common_1.BadRequestException(`Executable '${firstWord}' is not allowed`);
-        }
-        return sanitized;
     }
 };
 exports.ExecutionService = ExecutionService;

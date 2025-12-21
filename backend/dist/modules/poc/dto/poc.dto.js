@@ -214,12 +214,6 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], ExecutePOCInput.prototype, "command", void 0);
-__decorate([
-    (0, graphql_1.Field)(() => String, { nullable: true }),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsObject)(),
-    __metadata("design:type", String)
-], ExecutePOCInput.prototype, "additionalParams", void 0);
 exports.ExecutePOCInput = ExecutePOCInput = __decorate([
     (0, graphql_1.InputType)()
 ], ExecutePOCInput);
@@ -238,6 +232,10 @@ __decorate([
     (0, graphql_1.Field)({ nullable: true }),
     __metadata("design:type", String)
 ], ExecutionResult.prototype, "error", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", String)
+], ExecutionResult.prototype, "executedScriptPath", void 0);
 exports.ExecutionResult = ExecutionResult = __decorate([
     (0, graphql_1.ObjectType)()
 ], ExecutionResult);

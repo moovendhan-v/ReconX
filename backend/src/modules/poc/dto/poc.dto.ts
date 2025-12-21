@@ -158,11 +158,6 @@ export class ExecutePOCInput {
   @Field()
   @IsString()
   command: string;
-
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  @IsObject()
-  additionalParams?: string; // JSON string
 }
 
 @ObjectType()
@@ -175,6 +170,9 @@ export class ExecutionResult {
 
   @Field({ nullable: true })
   error?: string;
+
+  @Field({ nullable: true })
+  executedScriptPath?: string;
 }
 
 @ObjectType()
