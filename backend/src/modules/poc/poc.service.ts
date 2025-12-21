@@ -19,14 +19,15 @@ export class PocService {
     private readonly redisService: RedisService,
   ) { }
 
-  async findAll(filters: POCFiltersInput = {}): Promise<POCListResponse> {
+  async findAll(userId: string, filters: POCFiltersInput = {}): Promise<POCListResponse> {
     const db = this.databaseService.getDb();
     const { cveId, language, author, search, limit, offset } = filters;
 
     // Build where conditions
     const conditions = [];
 
-    // ... (existing conditions) ...
+    // Filter by userId for user isolation
+    conditions.push(eq(pocs.userId, userId));
 
     if (cveId) {
       conditions.push(eq(pocs.cveId, cveId));
@@ -81,11 +82,11 @@ export class PocService {
     };
   }
 
-  async findOne(id: string): Promise<POC> {
+  async findOne(id: string, userId: string): Promise<POC> {
     const db = this.databaseService.getDb();
 
     // Try cache first
-    const cacheKey = `poc:${id}`;
+    const cacheKey = `poc:${id}:${userId}`;
     const cached = await this.redisService.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
@@ -94,11 +95,11 @@ export class PocService {
     const result = await db
       .select()
       .from(pocs)
-      .where(eq(pocs.id, id))
+      .where(and(eq(pocs.id, id), eq(pocs.userId, userId)))
       .limit(1);
 
     if (result.length === 0) {
-      throw new NotFoundException(`POC with ID ${id} not found`);
+      throw new NotFoundException(`POC with ID ${id} not found or access denied`);
     }
 
     const poc = this.mapPOCFromDb(result[0]);
@@ -109,10 +110,10 @@ export class PocService {
     return poc;
   }
 
-  async findWithLogs(id: string): Promise<POC> {
+  async findWithLogs(id: string, userId: string): Promise<POC> {
     const db = this.databaseService.getDb();
 
-    const poc = await this.findOne(id);
+    const poc = await this.findOne(id, userId);
 
     const logResults = await db
       .select()
@@ -134,19 +135,19 @@ export class PocService {
     return poc;
   }
 
-  async findByCveId(cveId: string): Promise<POC[]> {
+  async findByCveId(cveId: string, userId: string): Promise<POC[]> {
     const db = this.databaseService.getDb();
 
     const results = await db
       .select()
       .from(pocs)
-      .where(eq(pocs.cveId, cveId))
+      .where(and(eq(pocs.cveId, cveId), eq(pocs.userId, userId)))
       .orderBy(desc(pocs.createdAt));
 
     return results.map(this.mapPOCFromDb);
   }
 
-  async create(input: CreatePOCInput): Promise<POC> {
+  async create(input: CreatePOCInput, userId: string): Promise<POC> {
     const db = this.databaseService.getDb();
 
     // Verify CVE exists
@@ -164,6 +165,7 @@ export class PocService {
       .insert(pocs)
       .values({
         cveId: input.cveId,
+        userId: userId,
         name: input.name,
         description: input.description,
         language: input.language,
@@ -176,7 +178,7 @@ export class PocService {
     return this.mapPOCFromDb(result);
   }
 
-  async update(id: string, input: UpdatePOCInput): Promise<POC> {
+  async update(id: string, input: UpdatePOCInput, userId: string): Promise<POC> {
     const db = this.databaseService.getDb();
 
     const [result] = await db
@@ -185,42 +187,42 @@ export class PocService {
         ...input,
         updatedAt: new Date(),
       })
-      .where(eq(pocs.id, id))
+      .where(and(eq(pocs.id, id), eq(pocs.userId, userId)))
       .returning();
 
     if (!result) {
-      throw new NotFoundException(`POC with ID ${id} not found`);
+      throw new NotFoundException(`POC with ID ${id} not found or access denied`);
     }
 
     // Invalidate cache
-    await this.redisService.del(`poc:${id}`);
+    await this.redisService.del(`poc:${id}:${userId}`);
 
     return this.mapPOCFromDb(result);
   }
 
-  async remove(id: string): Promise<boolean> {
+  async remove(id: string, userId: string): Promise<boolean> {
     const db = this.databaseService.getDb();
 
     const result = await db
       .delete(pocs)
-      .where(eq(pocs.id, id))
+      .where(and(eq(pocs.id, id), eq(pocs.userId, userId)))
       .returning({ id: pocs.id });
 
     if (result.length === 0) {
-      throw new NotFoundException(`POC with ID ${id} not found`);
+      throw new NotFoundException(`POC with ID ${id} not found or access denied`);
     }
 
     // Invalidate cache
-    await this.redisService.del(`poc:${id}`);
+    await this.redisService.del(`poc:${id}:${userId}`);
 
     return true;
   }
 
-  async getLogs(pocId: string, limit: number = 50): Promise<ExecutionLog[]> {
+  async getLogs(pocId: string, userId: string, limit: number = 50): Promise<ExecutionLog[]> {
     const db = this.databaseService.getDb();
 
-    // Verify POC exists
-    await this.findOne(pocId);
+    // Verify POC exists and user has access
+    await this.findOne(pocId, userId);
 
     const results = await db
       .select()

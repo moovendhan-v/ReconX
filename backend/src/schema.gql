@@ -24,6 +24,11 @@ type ActivityLog {
   performedBy: String
 }
 
+type AuthResponse {
+  token: String!
+  user: UserOutput!
+}
+
 type CVE {
   affectedProducts: [String!]
   createdAt: DateTime!
@@ -162,6 +167,11 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
 type Mutation {
   createActivityLog(input: CreateActivityLogInput!): ActivityLog!
   createCve(input: CreateCVEInput!): CVE!
@@ -175,6 +185,8 @@ type Mutation {
   deleteReport(id: String!): Boolean!
   deleteScan(id: String!): Boolean!
   executePoc(input: ExecutePOCInput!, pocId: String!): ExecuteResponse!
+  login(input: LoginInput!): AuthResponse!
+  signup(input: SignupInput!): AuthResponse!
   startScan(id: String!): Scan!
   updateCve(id: ID!, input: UpdateCVEInput!): CVE!
   updatePoc(id: ID!, input: UpdatePOCInput!): POC!
@@ -240,6 +252,7 @@ type Query {
   cveStatistics: CVEStatistics!
   cveWithPocs(id: ID!): CVE!
   cves(filters: CVEFiltersInput): CVEListResponse!
+  me: UserOutput!
   poc(id: ID!): POC!
   pocLogs(limit: Int = 50, pocId: String!): [ExecutionLog!]!
   pocWithLogs(id: ID!): POC!
@@ -329,6 +342,12 @@ enum Severity {
   MEDIUM
 }
 
+input SignupInput {
+  email: String!
+  name: String
+  password: String!
+}
+
 input UpdateCVEInput {
   affectedProducts: [String!]
   cvssScore: String
@@ -359,4 +378,11 @@ input UpdateScanInput {
   name: String
   results: JSON
   status: ScanStatus
+}
+
+type UserOutput {
+  createdAt: DateTime!
+  email: String!
+  id: String!
+  name: String
 }

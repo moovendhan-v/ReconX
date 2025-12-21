@@ -15,6 +15,13 @@
       "when": 1766321616064,
       "tag": "0001_new_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1766329927054,
+      "tag": "0002_sweet_landau",
+      "breakpoints": true
     }
   ]
 }

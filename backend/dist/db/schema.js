@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executionLogsRelations = exports.pocsRelations = exports.cvesRelations = exports.activityLogs = exports.projects = exports.reports = exports.scans = exports.executionLogs = exports.pocs = exports.cves = exports.reportTypeEnum = exports.scanTypeEnum = exports.scanStatusEnum = exports.executionStatusEnum = exports.severityEnum = void 0;
+exports.executionLogsRelations = exports.pocsRelations = exports.cvesRelations = exports.usersRelations = exports.activityLogs = exports.projects = exports.reports = exports.scans = exports.executionLogs = exports.pocs = exports.cves = exports.users = exports.reportTypeEnum = exports.scanTypeEnum = exports.scanStatusEnum = exports.executionStatusEnum = exports.severityEnum = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.severityEnum = (0, pg_core_1.pgEnum)('severity', ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
@@ -8,6 +8,14 @@ exports.executionStatusEnum = (0, pg_core_1.pgEnum)('execution_status', ['SUCCES
 exports.scanStatusEnum = (0, pg_core_1.pgEnum)('scan_status', ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']);
 exports.scanTypeEnum = (0, pg_core_1.pgEnum)('scan_type', ['QUICK', 'FULL', 'CUSTOM']);
 exports.reportTypeEnum = (0, pg_core_1.pgEnum)('report_type', ['SCAN', 'CVE', 'POC', 'CUSTOM']);
+exports.users = (0, pg_core_1.pgTable)('users', {
+    id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
+    email: (0, pg_core_1.varchar)('email', { length: 255 }).notNull().unique(),
+    passwordHash: (0, pg_core_1.text)('password_hash').notNull(),
+    name: (0, pg_core_1.varchar)('name', { length: 255 }),
+    createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
+    updatedAt: (0, pg_core_1.timestamp)('updated_at').defaultNow().notNull(),
+});
 exports.cves = (0, pg_core_1.pgTable)('cves', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     cveId: (0, pg_core_1.varchar)('cve_id', { length: 50 }).notNull().unique(),
@@ -24,6 +32,7 @@ exports.cves = (0, pg_core_1.pgTable)('cves', {
 exports.pocs = (0, pg_core_1.pgTable)('pocs', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     cveId: (0, pg_core_1.uuid)('cve_id').references(() => exports.cves.id, { onDelete: 'cascade' }).notNull(),
+    userId: (0, pg_core_1.uuid)('user_id').references(() => exports.users.id, { onDelete: 'cascade' }),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
     description: (0, pg_core_1.text)('description').notNull(),
     language: (0, pg_core_1.varchar)('language', { length: 50 }).notNull(),
@@ -80,6 +89,9 @@ exports.activityLogs = (0, pg_core_1.pgTable)('activity_logs', {
     performedBy: (0, pg_core_1.varchar)('performed_by', { length: 255 }),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),
 });
+exports.usersRelations = (0, drizzle_orm_1.relations)(exports.users, ({ many }) => ({
+    pocs: many(exports.pocs),
+}));
 exports.cvesRelations = (0, drizzle_orm_1.relations)(exports.cves, ({ many }) => ({
     pocs: many(exports.pocs),
 }));
@@ -87,6 +99,10 @@ exports.pocsRelations = (0, drizzle_orm_1.relations)(exports.pocs, ({ one, many 
     cve: one(exports.cves, {
         fields: [exports.pocs.cveId],
         references: [exports.cves.id],
+    }),
+    user: one(exports.users, {
+        fields: [exports.pocs.userId],
+        references: [exports.users.id],
     }),
     executionLogs: many(exports.executionLogs),
 }));

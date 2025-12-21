@@ -20,10 +20,11 @@ let PocService = class PocService {
         this.databaseService = databaseService;
         this.redisService = redisService;
     }
-    async findAll(filters = {}) {
+    async findAll(userId, filters = {}) {
         const db = this.databaseService.getDb();
         const { cveId, language, author, search, limit, offset } = filters;
         const conditions = [];
+        conditions.push((0, drizzle_orm_1.eq)(schema_1.pocs.userId, userId));
         if (cveId) {
             conditions.push((0, drizzle_orm_1.eq)(schema_1.pocs.cveId, cveId));
         }
@@ -58,9 +59,9 @@ let PocService = class PocService {
             total: totalCount,
         };
     }
-    async findOne(id) {
+    async findOne(id, userId) {
         const db = this.databaseService.getDb();
-        const cacheKey = `poc:${id}`;
+        const cacheKey = `poc:${id}:${userId}`;
         const cached = await this.redisService.get(cacheKey);
         if (cached) {
             return JSON.parse(cached);
@@ -68,18 +69,18 @@ let PocService = class PocService {
         const result = await db
             .select()
             .from(schema_1.pocs)
-            .where((0, drizzle_orm_1.eq)(schema_1.pocs.id, id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.pocs.id, id), (0, drizzle_orm_1.eq)(schema_1.pocs.userId, userId)))
             .limit(1);
         if (result.length === 0) {
-            throw new common_1.NotFoundException(`POC with ID ${id} not found`);
+            throw new common_1.NotFoundException(`POC with ID ${id} not found or access denied`);
         }
         const poc = this.mapPOCFromDb(result[0]);
         await this.redisService.set(cacheKey, JSON.stringify(poc), 300);
         return poc;
     }
-    async findWithLogs(id) {
+    async findWithLogs(id, userId) {
         const db = this.databaseService.getDb();
-        const poc = await this.findOne(id);
+        const poc = await this.findOne(id, userId);
         const logResults = await db
             .select()
             .from(schema_1.executionLogs)
@@ -97,16 +98,16 @@ let PocService = class PocService {
         }));
         return poc;
     }
-    async findByCveId(cveId) {
+    async findByCveId(cveId, userId) {
         const db = this.databaseService.getDb();
         const results = await db
             .select()
             .from(schema_1.pocs)
-            .where((0, drizzle_orm_1.eq)(schema_1.pocs.cveId, cveId))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.pocs.cveId, cveId), (0, drizzle_orm_1.eq)(schema_1.pocs.userId, userId)))
             .orderBy((0, drizzle_orm_1.desc)(schema_1.pocs.createdAt));
         return results.map(this.mapPOCFromDb);
     }
-    async create(input) {
+    async create(input, userId) {
         const db = this.databaseService.getDb();
         const cveExists = await db
             .select()
@@ -120,6 +121,7 @@ let PocService = class PocService {
             .insert(schema_1.pocs)
             .values({
             cveId: input.cveId,
+            userId: userId,
             name: input.name,
             description: input.description,
             language: input.language,
@@ -130,7 +132,7 @@ let PocService = class PocService {
             .returning();
         return this.mapPOCFromDb(result);
     }
-    async update(id, input) {
+    async update(id, input, userId) {
         const db = this.databaseService.getDb();
         const [result] = await db
             .update(schema_1.pocs)
@@ -138,29 +140,29 @@ let PocService = class PocService {
             ...input,
             updatedAt: new Date(),
         })
-            .where((0, drizzle_orm_1.eq)(schema_1.pocs.id, id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.pocs.id, id), (0, drizzle_orm_1.eq)(schema_1.pocs.userId, userId)))
             .returning();
         if (!result) {
-            throw new common_1.NotFoundException(`POC with ID ${id} not found`);
+            throw new common_1.NotFoundException(`POC with ID ${id} not found or access denied`);
         }
-        await this.redisService.del(`poc:${id}`);
+        await this.redisService.del(`poc:${id}:${userId}`);
         return this.mapPOCFromDb(result);
     }
-    async remove(id) {
+    async remove(id, userId) {
         const db = this.databaseService.getDb();
         const result = await db
             .delete(schema_1.pocs)
-            .where((0, drizzle_orm_1.eq)(schema_1.pocs.id, id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.pocs.id, id), (0, drizzle_orm_1.eq)(schema_1.pocs.userId, userId)))
             .returning({ id: schema_1.pocs.id });
         if (result.length === 0) {
-            throw new common_1.NotFoundException(`POC with ID ${id} not found`);
+            throw new common_1.NotFoundException(`POC with ID ${id} not found or access denied`);
         }
-        await this.redisService.del(`poc:${id}`);
+        await this.redisService.del(`poc:${id}:${userId}`);
         return true;
     }
-    async getLogs(pocId, limit = 50) {
+    async getLogs(pocId, userId, limit = 50) {
         const db = this.databaseService.getDb();
-        await this.findOne(pocId);
+        await this.findOne(pocId, userId);
         const results = await db
             .select()
             .from(schema_1.executionLogs)

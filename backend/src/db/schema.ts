@@ -8,6 +8,16 @@ export const scanStatusEnum = pgEnum('scan_status', ['PENDING', 'RUNNING', 'COMP
 export const scanTypeEnum = pgEnum('scan_type', ['QUICK', 'FULL', 'CUSTOM']);
 export const reportTypeEnum = pgEnum('report_type', ['SCAN', 'CVE', 'POC', 'CUSTOM']);
 
+// Users Table
+export const users = pgTable('users', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  passwordHash: text('password_hash').notNull(),
+  name: varchar('name', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // CVEs Table
 export const cves = pgTable('cves', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -27,6 +37,7 @@ export const cves = pgTable('cves', {
 export const pocs = pgTable('pocs', {
   id: uuid('id').defaultRandom().primaryKey(),
   cveId: uuid('cve_id').references(() => cves.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description').notNull(),
   language: varchar('language', { length: 50 }).notNull(),
@@ -95,6 +106,10 @@ export const activityLogs = pgTable('activity_logs', {
 });
 
 // Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  pocs: many(pocs),
+}));
+
 export const cvesRelations = relations(cves, ({ many }) => ({
   pocs: many(pocs),
 }));
@@ -103,6 +118,10 @@ export const pocsRelations = relations(pocs, ({ one, many }) => ({
   cve: one(cves, {
     fields: [pocs.cveId],
     references: [cves.id],
+  }),
+  user: one(users, {
+    fields: [pocs.userId],
+    references: [users.id],
   }),
   executionLogs: many(executionLogs),
 }));
@@ -115,6 +134,8 @@ export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
 }));
 
 // Types
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type CVE = typeof cves.$inferSelect;
 export type NewCVE = typeof cves.$inferInsert;
 export type POC = typeof pocs.$inferSelect;

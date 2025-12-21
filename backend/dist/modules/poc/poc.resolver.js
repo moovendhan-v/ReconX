@@ -14,8 +14,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PocResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
+const common_1 = require("@nestjs/common");
 const poc_service_1 = require("./poc.service");
 const execution_service_1 = require("./execution.service");
+const gql_auth_guard_1 = require("../auth/gql-auth.guard");
+const current_user_decorator_1 = require("../auth/current-user.decorator");
 const poc_dto_1 = require("./dto/poc.dto");
 const cve_dto_1 = require("../cve/dto/cve.dto");
 let PocResolver = class PocResolver {
@@ -23,108 +26,126 @@ let PocResolver = class PocResolver {
         this.pocService = pocService;
         this.executionService = executionService;
     }
-    async findAll(filters) {
-        return this.pocService.findAll(filters);
+    async findAll(user, filters) {
+        return this.pocService.findAll(user.id, filters);
     }
-    async findOne(id) {
-        return this.pocService.findOne(id);
+    async findOne(user, id) {
+        return this.pocService.findOne(id, user.id);
     }
-    async findWithLogs(id) {
-        return this.pocService.findWithLogs(id);
+    async findWithLogs(user, id) {
+        return this.pocService.findWithLogs(id, user.id);
     }
-    async findByCveId(cveId) {
-        return this.pocService.findByCveId(cveId);
+    async findByCveId(user, cveId) {
+        return this.pocService.findByCveId(cveId, user.id);
     }
-    async getLogs(pocId, limit) {
-        return this.pocService.getLogs(pocId, limit);
+    async getLogs(user, pocId, limit) {
+        return this.pocService.getLogs(pocId, user.id, limit);
     }
-    async createPoc(input) {
-        return this.pocService.create(input);
+    async createPoc(user, input) {
+        return this.pocService.create(input, user.id);
     }
-    async updatePoc(id, input) {
-        return this.pocService.update(id, input);
+    async updatePoc(user, id, input) {
+        return this.pocService.update(id, input, user.id);
     }
-    async deletePoc(id) {
-        return this.pocService.remove(id);
+    async deletePoc(user, id) {
+        return this.pocService.remove(id, user.id);
     }
-    async executePoc(pocId, input) {
-        return this.executionService.executePOC(pocId, input);
+    async executePoc(user, pocId, input) {
+        return this.executionService.executePOC(pocId, input, user.id);
     }
     async cve(poc) {
         return poc.cve;
     }
-    async executionLogs(poc) {
+    async executionLogs(poc, user) {
         if (poc.executionLogs) {
             return poc.executionLogs;
         }
-        return this.pocService.getLogs(poc.id, 10);
+        return this.pocService.getLogs(poc.id, user.id, 10);
     }
 };
 exports.PocResolver = PocResolver;
 __decorate([
     (0, graphql_1.Query)(() => poc_dto_1.POCListResponse, { name: 'pocs' }),
-    __param(0, (0, graphql_1.Args)('filters', { nullable: true })),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('filters', { nullable: true })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [poc_dto_1.POCFiltersInput]),
+    __metadata("design:paramtypes", [Object, poc_dto_1.POCFiltersInput]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "findAll", null);
 __decorate([
     (0, graphql_1.Query)(() => poc_dto_1.POC, { name: 'poc' }),
-    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "findOne", null);
 __decorate([
     (0, graphql_1.Query)(() => poc_dto_1.POC, { name: 'pocWithLogs' }),
-    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "findWithLogs", null);
 __decorate([
     (0, graphql_1.Query)(() => [poc_dto_1.POC], { name: 'pocsByCve' }),
-    __param(0, (0, graphql_1.Args)('cveId')),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('cveId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "findByCveId", null);
 __decorate([
     (0, graphql_1.Query)(() => [poc_dto_1.ExecutionLog], { name: 'pocLogs' }),
-    __param(0, (0, graphql_1.Args)('pocId')),
-    __param(1, (0, graphql_1.Args)('limit', { type: () => graphql_1.Int, nullable: true, defaultValue: 50 })),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('pocId')),
+    __param(2, (0, graphql_1.Args)('limit', { type: () => graphql_1.Int, nullable: true, defaultValue: 50 })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:paramtypes", [Object, String, Number]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "getLogs", null);
 __decorate([
     (0, graphql_1.Mutation)(() => poc_dto_1.POC),
-    __param(0, (0, graphql_1.Args)('input')),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('input')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [poc_dto_1.CreatePOCInput]),
+    __metadata("design:paramtypes", [Object, poc_dto_1.CreatePOCInput]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "createPoc", null);
 __decorate([
     (0, graphql_1.Mutation)(() => poc_dto_1.POC),
-    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
-    __param(1, (0, graphql_1.Args)('input')),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
+    __param(2, (0, graphql_1.Args)('input')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, poc_dto_1.UpdatePOCInput]),
+    __metadata("design:paramtypes", [Object, String, poc_dto_1.UpdatePOCInput]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "updatePoc", null);
 __decorate([
     (0, graphql_1.Mutation)(() => Boolean),
-    __param(0, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('id', { type: () => graphql_1.ID })),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "deletePoc", null);
 __decorate([
     (0, graphql_1.Mutation)(() => poc_dto_1.ExecuteResponse),
-    __param(0, (0, graphql_1.Args)('pocId')),
-    __param(1, (0, graphql_1.Args)('input')),
+    (0, common_1.UseGuards)(gql_auth_guard_1.GqlAuthGuard),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __param(1, (0, graphql_1.Args)('pocId')),
+    __param(2, (0, graphql_1.Args)('input')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, poc_dto_1.ExecutePOCInput]),
+    __metadata("design:paramtypes", [Object, String, poc_dto_1.ExecutePOCInput]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "executePoc", null);
 __decorate([
@@ -137,8 +158,9 @@ __decorate([
 __decorate([
     (0, graphql_1.ResolveField)(() => [poc_dto_1.ExecutionLog], { nullable: true }),
     __param(0, (0, graphql_1.Parent)()),
+    __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [poc_dto_1.POC]),
+    __metadata("design:paramtypes", [poc_dto_1.POC, Object]),
     __metadata("design:returntype", Promise)
 ], PocResolver.prototype, "executionLogs", null);
 exports.PocResolver = PocResolver = __decorate([

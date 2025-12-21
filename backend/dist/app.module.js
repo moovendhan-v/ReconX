@@ -21,6 +21,7 @@ const scans_module_1 = require("./modules/scans/scans.module");
 const reports_module_1 = require("./modules/reports/reports.module");
 const projects_module_1 = require("./modules/projects/projects.module");
 const activity_module_1 = require("./modules/activity/activity.module");
+const auth_module_1 = require("./modules/auth/auth.module");
 const datetime_scalar_1 = require("./common/scalars/datetime.scalar");
 let AppModule = class AppModule {
 };
@@ -49,6 +50,7 @@ exports.AppModule = AppModule = __decorate([
             }),
             database_module_1.DatabaseModule,
             redis_module_1.RedisModule,
+            auth_module_1.AuthModule,
             cve_module_1.CveModule,
             poc_module_1.PocModule,
             scans_module_1.ScansModule,

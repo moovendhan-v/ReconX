@@ -28,9 +28,9 @@ let ExecutionService = class ExecutionService {
     stripAnsiCodes(text) {
         return text.replace(/\x1b\[[0-9;]*m/g, '');
     }
-    async executePOC(pocId, input) {
+    async executePOC(pocId, input, userId) {
         const db = this.databaseService.getDb();
-        const poc = await this.pocService.findOne(pocId);
+        const poc = await this.pocService.findOne(pocId, userId);
         console.log("poc::", poc);
         let scriptPath = poc.scriptPath;
         console.log("Resolved script path:", scriptPath);

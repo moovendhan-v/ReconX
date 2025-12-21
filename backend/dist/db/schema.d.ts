@@ -3,6 +3,85 @@ export declare const executionStatusEnum: import("drizzle-orm/pg-core").PgEnum<[
 export declare const scanStatusEnum: import("drizzle-orm/pg-core").PgEnum<["PENDING", "RUNNING", "COMPLETED", "FAILED"]>;
 export declare const scanTypeEnum: import("drizzle-orm/pg-core").PgEnum<["QUICK", "FULL", "CUSTOM"]>;
 export declare const reportTypeEnum: import("drizzle-orm/pg-core").PgEnum<["SCAN", "CVE", "POC", "CUSTOM"]>;
+export declare const users: import("drizzle-orm/pg-core").PgTableWithColumns<{
+    name: "users";
+    schema: undefined;
+    columns: {
+        id: import("drizzle-orm/pg-core").PgColumn<{
+            name: "id";
+            tableName: "users";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        email: import("drizzle-orm/pg-core").PgColumn<{
+            name: "email";
+            tableName: "users";
+            dataType: "string";
+            columnType: "PgVarchar";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        passwordHash: import("drizzle-orm/pg-core").PgColumn<{
+            name: "password_hash";
+            tableName: "users";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        name: import("drizzle-orm/pg-core").PgColumn<{
+            name: "name";
+            tableName: "users";
+            dataType: "string";
+            columnType: "PgVarchar";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        createdAt: import("drizzle-orm/pg-core").PgColumn<{
+            name: "created_at";
+            tableName: "users";
+            dataType: "date";
+            columnType: "PgTimestamp";
+            data: Date;
+            driverParam: string;
+            notNull: true;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        updatedAt: import("drizzle-orm/pg-core").PgColumn<{
+            name: "updated_at";
+            tableName: "users";
+            dataType: "date";
+            columnType: "PgTimestamp";
+            data: Date;
+            driverParam: string;
+            notNull: true;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+    };
+    dialect: "pg";
+}>;
 export declare const cves: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "cves";
     schema: undefined;
@@ -166,6 +245,18 @@ export declare const pocs: import("drizzle-orm/pg-core").PgTableWithColumns<{
             data: string;
             driverParam: string;
             notNull: true;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        userId: import("drizzle-orm/pg-core").PgColumn<{
+            name: "user_id";
+            tableName: "pocs";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: false;
             hasDefault: false;
             enumValues: undefined;
             baseColumn: never;
@@ -748,16 +839,22 @@ export declare const activityLogs: import("drizzle-orm/pg-core").PgTableWithColu
     };
     dialect: "pg";
 }>;
+export declare const usersRelations: import("drizzle-orm").Relations<"users", {
+    pocs: import("drizzle-orm").Many<"pocs">;
+}>;
 export declare const cvesRelations: import("drizzle-orm").Relations<"cves", {
     pocs: import("drizzle-orm").Many<"pocs">;
 }>;
 export declare const pocsRelations: import("drizzle-orm").Relations<"pocs", {
     cve: import("drizzle-orm").One<"cves", true>;
+    user: import("drizzle-orm").One<"users", false>;
     executionLogs: import("drizzle-orm").Many<"execution_logs">;
 }>;
 export declare const executionLogsRelations: import("drizzle-orm").Relations<"execution_logs", {
     poc: import("drizzle-orm").One<"pocs", true>;
 }>;
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type CVE = typeof cves.$inferSelect;
 export type NewCVE = typeof cves.$inferInsert;
 export type POC = typeof pocs.$inferSelect;

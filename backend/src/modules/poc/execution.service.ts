@@ -22,11 +22,11 @@ export class ExecutionService {
     return text.replace(/\x1b\[[0-9;]*m/g, '');
   }
 
-  async executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse> {
+  async executePOC(pocId: string, input: ExecutePOCInput, userId: string): Promise<ExecuteResponse> {
     const db = this.databaseService.getDb();
 
-    // Verify POC exists and get script path
-    const poc = await this.pocService.findOne(pocId);
+    // Verify POC exists, user owns it, and get script path
+    const poc = await this.pocService.findOne(pocId, userId);
     console.log("poc::", poc);
 
     // Script path from DB can be:

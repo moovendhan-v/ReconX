@@ -13,6 +13,7 @@ import { ScansModule } from './modules/scans/scans.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { DateTimeScalar } from './common/scalars/datetime.scalar';
 
 @Module({
@@ -38,6 +39,7 @@ import { DateTimeScalar } from './common/scalars/datetime.scalar';
     }),
     DatabaseModule,
     RedisModule,
+    AuthModule,
     CveModule,
     PocModule,
     ScansModule,
