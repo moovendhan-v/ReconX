@@ -7,5 +7,6 @@ export declare class ExecutionService {
     private readonly pocService;
     private readonly executionLogsGateway;
     constructor(databaseService: DatabaseService, pocService: PocService, executionLogsGateway: ExecutionLogsGateway);
+    private stripAnsiCodes;
     executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse>;
 }

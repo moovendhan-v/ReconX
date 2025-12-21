@@ -25,13 +25,15 @@ let ExecutionService = class ExecutionService {
         this.pocService = pocService;
         this.executionLogsGateway = executionLogsGateway;
     }
+    stripAnsiCodes(text) {
+        return text.replace(/\x1b\[[0-9;]*m/g, '');
+    }
     async executePOC(pocId, input) {
         const db = this.databaseService.getDb();
         const poc = await this.pocService.findOne(pocId);
         console.log("poc::", poc);
-        const scriptPath = poc.scriptPath.startsWith('/app/python-core')
-            ? poc.scriptPath
-            : poc.scriptPath.replace('/app/', '/app/python-core/');
+        let scriptPath = poc.scriptPath;
+        console.log("Resolved script path:", scriptPath);
         const executionId = (0, uuid_1.v4)();
         const fullCommand = `python3 ${scriptPath} -t ${input.targetUrl} -c "${input.command}"`;
         const [executionLog] = await db
@@ -58,7 +60,7 @@ let ExecutionService = class ExecutionService {
             let stdout = '';
             let stderr = '';
             pythonProcess.stdout.on('data', (data) => {
-                const output = data.toString();
+                const output = this.stripAnsiCodes(data.toString());
                 stdout += output;
                 const lines = output.split('\n').filter(line => line.trim());
                 lines.forEach(line => {
@@ -71,7 +73,7 @@ let ExecutionService = class ExecutionService {
                 });
             });
             pythonProcess.stderr.on('data', (data) => {
-                const output = data.toString();
+                const output = this.stripAnsiCodes(data.toString());
                 stderr += output;
                 const lines = output.split('\n').filter(line => line.trim());
                 lines.forEach(line => {

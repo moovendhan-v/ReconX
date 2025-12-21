@@ -16,6 +16,12 @@ export class ExecutionService {
     private readonly executionLogsGateway: ExecutionLogsGateway,
   ) { }
 
+  // Strip ANSI color codes from terminal output
+  private stripAnsiCodes(text: string): string {
+    // eslint-disable-next-line no-control-regex
+    return text.replace(/\x1b\[[0-9;]*m/g, '');
+  }
+
   async executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse> {
     const db = this.databaseService.getDb();
 
@@ -23,11 +29,13 @@ export class ExecutionService {
     const poc = await this.pocService.findOne(pocId);
     console.log("poc::", poc);
 
-    // Script path from DB is relative to python-core, e.g., /app/exploits/react2shell/exploit.py
-    // We need to prepend python-core directory: /app/python-core/
-    const scriptPath = poc.scriptPath.startsWith('/app/python-core')
-      ? poc.scriptPath
-      : poc.scriptPath.replace('/app/', '/app/python-core/');
+    // Script path from DB can be:
+    // 1. Absolute: /app/python-core/exploits/...
+    // 2. Relative to python-core: python-core/exploits/...
+    // 3. Old format: /app/exploits/...
+    let scriptPath = poc.scriptPath;
+
+    console.log("Resolved script path:", scriptPath);
 
     // Generate unique execution ID
     const executionId = uuidv4();
@@ -66,7 +74,7 @@ export class ExecutionService {
 
       // Handle stdout - stream to WebSocket
       pythonProcess.stdout.on('data', (data) => {
-        const output = data.toString();
+        const output = this.stripAnsiCodes(data.toString());
         stdout += output;
 
         // Stream to WebSocket clients
@@ -83,7 +91,7 @@ export class ExecutionService {
 
       // Handle stderr
       pythonProcess.stderr.on('data', (data) => {
-        const output = data.toString();
+        const output = this.stripAnsiCodes(data.toString());
         stderr += output;
 
         // Stream to WebSocket clients
