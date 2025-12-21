@@ -1,13 +1,13 @@
 import { apolloClient } from '@/lib/apollo-client';
-import { 
-  GET_CVES, 
-  GET_CVE, 
-  GET_CVE_WITH_POCS, 
-  SEARCH_CVES, 
+import {
+  GET_CVES,
+  GET_CVE,
+  GET_CVE_WITH_POCS,
+  SEARCH_CVES,
   GET_CVE_STATISTICS,
   CREATE_CVE,
   UPDATE_CVE,
-  DELETE_CVE 
+  DELETE_CVE
 } from '@/graphql/queries/cve.queries';
 
 export interface CVEFilters {
@@ -90,12 +90,15 @@ export interface UpdateCVEInput {
 export class GraphQLCVEService {
   async getAll(filters: CVEFilters = {}): Promise<CVEListResponse> {
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ cves: CVEListResponse }>({
         query: GET_CVES,
         variables: { filters },
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.cves;
     } catch (error) {
       console.error('Error fetching CVEs:', error);
@@ -105,12 +108,15 @@ export class GraphQLCVEService {
 
   async getById(id: string): Promise<CVE> {
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ cve: CVE }>({
         query: GET_CVE,
         variables: { id },
         fetchPolicy: 'cache-first',
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.cve;
     } catch (error) {
       console.error('Error fetching CVE:', error);
@@ -120,12 +126,15 @@ export class GraphQLCVEService {
 
   async getWithPocs(id: string): Promise<CVE> {
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ cveWithPocs: CVE }>({
         query: GET_CVE_WITH_POCS,
         variables: { id },
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.cveWithPocs;
     } catch (error) {
       console.error('Error fetching CVE with POCs:', error);
@@ -135,12 +144,15 @@ export class GraphQLCVEService {
 
   async search(query: string): Promise<CVE[]> {
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ searchCves: CVE[] }>({
         query: SEARCH_CVES,
         variables: { query },
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.searchCves;
     } catch (error) {
       console.error('Error searching CVEs:', error);
@@ -150,11 +162,14 @@ export class GraphQLCVEService {
 
   async getStatistics(): Promise<CVEStatistics> {
     try {
-      const { data } = await apolloClient.query({
+      const { data } = await apolloClient.query<{ cveStatistics: CVEStatistics }>({
         query: GET_CVE_STATISTICS,
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.cveStatistics;
     } catch (error) {
       console.error('Error fetching CVE statistics:', error);
@@ -164,12 +179,15 @@ export class GraphQLCVEService {
 
   async create(input: CreateCVEInput): Promise<CVE> {
     try {
-      const { data } = await apolloClient.mutate({
+      const { data } = await apolloClient.mutate<{ createCve: CVE }>({
         mutation: CREATE_CVE,
         variables: { input },
         refetchQueries: [{ query: GET_CVES }, { query: GET_CVE_STATISTICS }],
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.createCve;
     } catch (error) {
       console.error('Error creating CVE:', error);
@@ -179,12 +197,15 @@ export class GraphQLCVEService {
 
   async update(id: string, input: UpdateCVEInput): Promise<CVE> {
     try {
-      const { data } = await apolloClient.mutate({
+      const { data } = await apolloClient.mutate<{ updateCve: CVE }>({
         mutation: UPDATE_CVE,
         variables: { id, input },
         refetchQueries: [{ query: GET_CVE, variables: { id } }],
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.updateCve;
     } catch (error) {
       console.error('Error updating CVE:', error);
@@ -194,12 +215,15 @@ export class GraphQLCVEService {
 
   async delete(id: string): Promise<boolean> {
     try {
-      const { data } = await apolloClient.mutate({
+      const { data } = await apolloClient.mutate<{ deleteCve: boolean }>({
         mutation: DELETE_CVE,
         variables: { id },
         refetchQueries: [{ query: GET_CVES }, { query: GET_CVE_STATISTICS }],
       });
-      
+
+      if (!data) throw new Error('No data returned from GraphQL');
+
+
       return data.deleteCve;
     } catch (error) {
       console.error('Error deleting CVE:', error);

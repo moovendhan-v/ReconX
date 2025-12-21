@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  FileCode, 
-  Play, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
-  Shield, 
-  Calendar, 
-  ExternalLink, 
+import {
+  ArrowLeft,
+  FileCode,
+  Play,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Shield,
+  Calendar,
+  ExternalLink,
   Copy,
   AlertTriangle,
   Info,
@@ -27,7 +27,8 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cveService, pocService } from '../services/api.service';
+import { useCVEWithPOCs } from '../hooks/use-cve-graphql';
+import { pocService } from '../services/api.service';
 import type { CVE, POC, ExecutionLog } from '../types';
 
 const severityColors = {
@@ -46,38 +47,23 @@ const statusColors = {
 
 export default function CVEDetail() {
   const { id } = useParams<{ id: string }>();
-  const [cve, setCve] = useState<CVE & { pocs: POC[] } | null>(null);
   const [selectedPoc, setSelectedPoc] = useState<POC & { executionLogs: ExecutionLog[] } | null>(null);
-  const [loading, setLoading] = useState(true);
   const [executing, setExecuting] = useState(false);
   const [targetUrl, setTargetUrl] = useState('');
   const [command, setCommand] = useState('');
   const [executionOutput, setExecutionOutput] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    if (id) {
-      loadCVE();
-    }
-  }, [id]);
+  // Use GraphQL hook to fetch CVE with POCs
+  const { data, loading, error, refetch } = useCVEWithPOCs(id || '');
 
-  const loadCVE = async () => {
-    try {
-      setLoading(true);
-      const data = await cveService.getById(id!);
-      setCve(data as any);
-    } catch (error) {
-      console.error('Failed to load CVE:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const cve = data?.cveWithPocs as (CVE & { pocs: POC[] }) | null;
 
   const loadPocDetails = async (pocId: string) => {
     try {
       const data = await pocService.getById(pocId);
       setSelectedPoc(data as any);
-      
+
       // Set default command if available
       if (data.usageExamples) {
         const lines = data.usageExamples.split('\n');
@@ -98,9 +84,9 @@ export default function CVEDetail() {
     try {
       setExecuting(true);
       setExecutionOutput('Starting POC execution...\n');
-      
+
       const result = await pocService.execute(selectedPoc.id, { targetUrl, command });
-      
+
       setExecutionOutput(prev => prev + `\nExecution completed with status: ${result.log.status}\n`);
       if (result.result.output) {
         setExecutionOutput(prev => prev + `Output:\n${result.result.output}\n`);
@@ -108,7 +94,7 @@ export default function CVEDetail() {
       if (result.result.error) {
         setExecutionOutput(prev => prev + `Error:\n${result.result.error}\n`);
       }
-      
+
       await loadPocDetails(selectedPoc.id); // Reload to get new logs
     } catch (error) {
       console.error('Execution failed:', error);
@@ -218,9 +204,9 @@ export default function CVEDetail() {
                   <Label className="text-sm font-medium">Description</Label>
                   <p className="text-muted-foreground mt-1">{cve.description}</p>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm font-medium">Published Date</Label>
@@ -231,7 +217,7 @@ export default function CVEDetail() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label className="text-sm font-medium">Last Modified</Label>
                     <div className="flex items-center gap-2 mt-1">
@@ -301,9 +287,8 @@ export default function CVEDetail() {
                 {cve.pocs.map((poc) => (
                   <Card
                     key={poc.id}
-                    className={`cursor-pointer transition-all hover:shadow-md ${
-                      selectedPoc?.id === poc.id ? 'ring-2 ring-primary' : ''
-                    }`}
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedPoc?.id === poc.id ? 'ring-2 ring-primary' : ''
+                      }`}
                     onClick={() => {
                       loadPocDetails(poc.id);
                       setActiveTab('execution');
@@ -392,7 +377,7 @@ export default function CVEDetail() {
                         <Play className="mr-2 h-4 w-4" />
                         {executing ? 'Executing...' : 'Execute POC'}
                       </Button>
-                      
+
                       {selectedPoc.usageExamples && (
                         <Button
                           variant="outline"
@@ -449,8 +434,8 @@ export default function CVEDetail() {
                                   ) : (
                                     <Terminal className="w-5 h-5 text-blue-500" />
                                   )}
-                                  <Badge 
-                                    variant="outline" 
+                                  <Badge
+                                    variant="outline"
                                     className={statusColors[log.status as keyof typeof statusColors]}
                                   >
                                     {log.status}
@@ -465,7 +450,7 @@ export default function CVEDetail() {
                                   {formatDate(log.executedAt)}
                                 </span>
                               </div>
-                              
+
                               {log.command && (
                                 <div className="mb-2">
                                   <Label className="text-xs">Command:</Label>
@@ -474,7 +459,7 @@ export default function CVEDetail() {
                                   </code>
                                 </div>
                               )}
-                              
+
                               {log.output && (
                                 <div>
                                   <Label className="text-xs">Output:</Label>

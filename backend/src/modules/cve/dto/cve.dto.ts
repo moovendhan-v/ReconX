@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, registerEnumType, InputType, Int } from '@nestjs/graphql';
 import { IsEnum, IsOptional, IsString, IsArray, IsDateString, IsNumber, Min, Max } from 'class-validator';
+import { POC } from '../../poc/dto/poc.dto';
 
 export enum Severity {
   LOW = 'LOW',
@@ -52,41 +53,7 @@ export class CVE {
   pocs?: POC[];
 }
 
-@ObjectType()
-export class POC {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  cveId: string;
-
-  @Field()
-  name: string;
-
-  @Field()
-  description: string;
-
-  @Field()
-  language: string;
-
-  @Field()
-  scriptPath: string;
-
-  @Field({ nullable: true })
-  usageExamples?: string;
-
-  @Field({ nullable: true })
-  author?: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
-
-  @Field(() => CVE, { nullable: true })
-  cve?: CVE;
-}
+// POC is imported from poc.dto.ts
 
 @InputType()
 export class CreateCVEInput {
@@ -194,14 +161,14 @@ export class CVEFiltersInput {
   @Field(() => Int, { nullable: true, defaultValue: 1 })
   @IsOptional()
   @IsNumber()
-  @Min(1)
+  @Min(0)
   page?: number;
 
   @Field(() => Int, { nullable: true, defaultValue: 20 })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  @Max(100)
+  @Max(1000)
   limit?: number;
 }
 
@@ -224,18 +191,6 @@ export class CVEListResponse {
 }
 
 @ObjectType()
-export class CVEStatistics {
-  @Field(() => Int)
-  total: number;
-
-  @Field(() => CVESeverityStats)
-  bySeverity: CVESeverityStats;
-
-  @Field(() => Int)
-  recent: number;
-}
-
-@ObjectType()
 export class CVESeverityStats {
   @Field(() => Int)
   LOW: number;
@@ -248,4 +203,16 @@ export class CVESeverityStats {
 
   @Field(() => Int)
   CRITICAL: number;
+}
+
+@ObjectType()
+export class CVEStatistics {
+  @Field(() => Int)
+  total: number;
+
+  @Field(() => CVESeverityStats)
+  bySeverity: CVESeverityStats;
+
+  @Field(() => Int)
+  recent: number;
 }

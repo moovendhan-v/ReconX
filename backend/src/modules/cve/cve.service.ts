@@ -3,14 +3,14 @@ import { eq, desc, asc, and, or, like, gte, lte, count, sql } from 'drizzle-orm'
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
 import { cves, pocs } from '../../db/schema';
-import { 
-  CVE, 
-  CreateCVEInput, 
-  UpdateCVEInput, 
-  CVEFiltersInput, 
-  CVEListResponse, 
+import {
+  CVE,
+  CreateCVEInput,
+  UpdateCVEInput,
+  CVEFiltersInput,
+  CVEListResponse,
   CVEStatistics,
-  Severity 
+  Severity
 } from './dto/cve.dto';
 
 @Injectable()
@@ -18,15 +18,16 @@ export class CveService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
 
   async findAll(filters: CVEFiltersInput = {}): Promise<CVEListResponse> {
     const db = this.databaseService.getDb();
-    const { search, severity, dateFrom, dateTo, page = 1, limit = 20 } = filters;
+    const { search, severity, dateFrom, dateTo, limit = 20 } = filters;
+    const page = Math.max(1, filters.page || 1);
 
     // Build where conditions
     const conditions = [];
-    
+
     if (search) {
       conditions.push(
         or(
@@ -126,7 +127,7 @@ export class CveService {
     const db = this.databaseService.getDb();
 
     const cve = await this.findOne(id);
-    
+
     const pocResults = await db
       .select()
       .from(pocs)

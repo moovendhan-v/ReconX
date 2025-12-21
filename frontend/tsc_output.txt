@@ -1,0 +1,107 @@
+src/__tests__/build-validation.test.ts(158,49): error TS6133: 'feature' is declared but its value is never read.
+src/__tests__/build-validation.test.ts(171,48): error TS6133: 'feature' is declared but its value is never read.
+src/__tests__/final-integration-validation.test.ts(1,32): error TS6133: 'vi' is declared but its value is never read.
+src/__tests__/graphql-integration.test.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/__tests__/graphql-integration.test.tsx(3,10): error TS2305: Module '"@apollo/client/testing"' has no exported member 'MockedProvider'.
+src/__tests__/graphql-integration.test.tsx(164,17): error TS6133: 'data' is declared but its value is never read.
+src/__tests__/graphql-integration.test.tsx(224,15): error TS2339: Property 'createCVE' does not exist on type 'typeof import("/Users/deamon/Desktop/Hack/ReconX/frontend/src/hooks/use-cve-graphql")'.
+src/__tests__/integration-workflows.test.tsx(68,52): error TS2345: Argument of type '{ cves: ({ id: string; cveId: string; title: string; description: string; severity: "HIGH"; cvssScore: string; publishedDate: string; references: never[]; affectedProducts: never[]; pocs: never[]; createdAt: string; updatedAt: string; } | { ...; })[]; total: number; }' is not assignable to parameter of type 'CVEListResponse'.
+  Type '{ cves: ({ id: string; cveId: string; title: string; description: string; severity: "HIGH"; cvssScore: string; publishedDate: string; references: never[]; affectedProducts: never[]; pocs: never[]; createdAt: string; updatedAt: string; } | { ...; })[]; total: number; }' is missing the following properties from type 'CVEListResponse': page, limit, totalPages
+src/__tests__/integration-workflows.test.tsx(104,52): error TS2345: Argument of type '{ id: string; cveId: string; name: string; description: string; language: string; author: string; scriptPath: string; createdAt: string; updatedAt: string; }[]' is not assignable to parameter of type 'POCListResponse'.
+  Type '{ id: string; cveId: string; name: string; description: string; language: string; author: string; scriptPath: string; createdAt: string; updatedAt: string; }[]' is missing the following properties from type 'POCListResponse': pocs, total
+src/__tests__/integration-workflows.test.tsx(122,9): error TS2353: Object literal may only specify known properties, and 'pocId' does not exist in type 'ExecutionLog'.
+src/__tests__/integration-workflows.test.tsx(205,11): error TS2353: Object literal may only specify known properties, and 'pocId' does not exist in type 'ExecutionLog'.
+src/__tests__/integration-workflows.test.tsx(270,28): error TS2345: Argument of type '{ cves: never[]; total: number; page: number; limit: number; }' is not assignable to parameter of type 'CVEListResponse'.
+  Property 'totalPages' is missing in type '{ cves: never[]; total: number; page: number; limit: number; }' but required in type 'CVEListResponse'.
+src/__tests__/integration-workflows.test.tsx(296,11): error TS2739: Type '{ id: string; cveId: string; title: string; description: string; severity: any; cvssScore: string; publishedDate: string; references: never[]; affectedProducts: never[]; pocs: never[]; }' is missing the following properties from type 'CVE': createdAt, updatedAt
+src/__tests__/integration-workflows.test.tsx(438,54): error TS2345: Argument of type '{ cves: { id: string; cveId: string; title: string; description: string; severity: "HIGH"; cvssScore: string; publishedDate: string; references: never[]; affectedProducts: never[]; pocs: never[]; createdAt: string; updatedAt: string; }[]; total: number; page: number; limit: number; }' is not assignable to parameter of type 'CVEListResponse'.
+  Property 'totalPages' is missing in type '{ cves: { id: string; cveId: string; title: string; description: string; severity: "HIGH"; cvssScore: string; publishedDate: string; references: never[]; affectedProducts: never[]; pocs: never[]; createdAt: string; updatedAt: string; }[]; total: number; page: number; limit: number; }' but required in type 'CVEListResponse'.
+src/components/accessibility/__tests__/accessibility.test.tsx(11,10): error TS6133: 'TestKeyboardComponent' is declared but its value is never read.
+src/hooks/use-cve-graphql.ts(1,10): error TS2305: Module '"@apollo/client"' has no exported member 'useQuery'.
+src/hooks/use-cve-graphql.ts(1,20): error TS2305: Module '"@apollo/client"' has no exported member 'useMutation'.
+src/hooks/use-cve-graphql.ts(1,33): error TS2724: '"@apollo/client"' has no exported member named 'useApolloClient'. Did you mean 'ApolloClient'?
+src/hooks/use-cve-graphql.ts(12,27): error TS6133: 'CVEStatistics' is declared but its value is never read.
+src/hooks/use-poc-graphql.ts(1,10): error TS2305: Module '"@apollo/client"' has no exported member 'useQuery'.
+src/hooks/use-poc-graphql.ts(1,20): error TS2305: Module '"@apollo/client"' has no exported member 'useMutation'.
+src/hooks/use-poc-graphql.ts(15,3): error TS6133: 'POC' is declared but its value is never read.
+src/hooks/use-poc-graphql.ts(16,3): error TS6133: 'ExecutionLog' is declared but its value is never read.
+src/lib/apollo-client.ts(24,30): error TS2339: Property 'graphQLErrors' does not exist on type 'ErrorHandlerOptions'.
+src/lib/apollo-client.ts(24,45): error TS2339: Property 'networkError' does not exist on type 'ErrorHandlerOptions'.
+src/lib/apollo-client.ts(24,59): error TS6133: 'operation' is declared but its value is never read.
+src/lib/apollo-client.ts(24,70): error TS6133: 'forward' is declared but its value is never read.
+src/lib/apollo-client.ts(26,30): error TS7031: Binding element 'message' implicitly has an 'any' type.
+src/lib/apollo-client.ts(26,39): error TS7031: Binding element 'locations' implicitly has an 'any' type.
+src/lib/apollo-client.ts(26,50): error TS7031: Binding element 'path' implicitly has an 'any' type.
+src/lib/apollo-client.ts(55,19): error TS6133: 'existing' is declared but its value is never read.
+src/lib/apollo-client.ts(62,19): error TS6133: 'existing' is declared but its value is never read.
+src/lib/apollo-client.ts(71,19): error TS6133: 'existing' is declared but its value is never read.
+src/lib/apollo-client.ts(80,19): error TS6133: 'existing' is declared but its value is never read.
+src/pages/CVEDetail.tsx(58,26): error TS6133: 'error' is declared but its value is never read.
+src/pages/CVEDetail.tsx(58,33): error TS6133: 'refetch' is declared but its value is never read.
+src/pages/CVEListGraphQL.tsx(40,24): error TS2345: Argument of type 'CVE[]' is not assignable to parameter of type 'SetStateAction<never[]>'.
+  Type 'CVE[]' is not assignable to type 'never[]'.
+    Type 'CVE' is not assignable to type 'never'.
+src/pages/DashboardGraphQL.tsx(109,13): error TS2739: Type 'Metrics' is missing the following properties from type '{ totalCVEs: number; criticalCVEs: number; totalPOCs: number; successfulExecutions: number; recentScans: number; activeThreats: number; }': recentScans, activeThreats
+src/pages/DashboardGraphQL.tsx(122,28): error TS2739: Type 'SeverityDistribution[]' is missing the following properties from type '{ LOW: number; MEDIUM: number; HIGH: number; CRITICAL: number; }': LOW, MEDIUM, HIGH, CRITICAL
+src/pages/DashboardGraphQL.tsx(139,29): error TS2719: Type 'ActivityItem[]' is not assignable to type 'ActivityItem[]'. Two different types with this name exist, but they are unrelated.
+  Type 'ActivityItem' is not assignable to type 'ActivityItem'. Two different types with this name exist, but they are unrelated.
+    Types of property 'type' are incompatible.
+      Type '"poc" | "cve" | "execution"' is not assignable to type '"cve_discovered" | "poc_uploaded" | "poc_executed" | "scan_completed" | "report_generated"'.
+        Type '"poc"' is not assignable to type '"cve_discovered" | "poc_uploaded" | "poc_executed" | "scan_completed" | "report_generated"'.
+src/services/__tests__/api-integration.test.ts(48,25): error TS2339: Property 'upload' does not exist on type 'GraphQLPOCService'.
+src/services/__tests__/api-integration.test.ts(94,35): error TS2339: Property 'createUploadFormData' does not exist on type 'GraphQLPOCService'.
+src/services/__tests__/service-integration.test.ts(106,25): error TS2339: Property 'baseURL' does not exist on type 'GraphQLCVEService'.
+src/services/__tests__/service-integration.test.ts(107,25): error TS2339: Property 'baseURL' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(60,48): error TS2345: Argument of type 'Partial<CVE>' is not assignable to parameter of type 'CreateCVEInput'.
+  Types of property 'cveId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/examples/api-usage.example.ts(73,33): error TS2339: Property 'createUploadFormData' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(83,42): error TS2339: Property 'upload' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(105,61): error TS2345: Argument of type 'ExecuteRequest' is not assignable to parameter of type 'ExecutePOCInput'.
+  Types of property 'additionalParams' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'string | undefined'.
+      Type 'Record<string, any>' is not assignable to type 'string'.
+src/services/examples/api-usage.example.ts(126,36): error TS2339: Property 'getExecutionStatistics' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(176,43): error TS2339: Property 'getBySeverity' does not exist on type 'GraphQLCVEService'.
+src/services/examples/api-usage.example.ts(180,41): error TS2339: Property 'getRecent' does not exist on type 'GraphQLCVEService'.
+src/services/examples/api-usage.example.ts(205,58): error TS2345: Argument of type 'Partial<CVE>' is not assignable to parameter of type 'CreateCVEInput'.
+  Types of property 'cveId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+src/services/examples/api-usage.example.ts(206,74): error TS2345: Argument of type 'Partial<CVE>' is not assignable to parameter of type 'UpdateCVEInput'.
+  Types of property 'cvssScore' are incompatible.
+    Type 'string | null | undefined' is not assignable to type 'string | undefined'.
+      Type 'null' is not assignable to type 'string | undefined'.
+src/services/examples/api-usage.example.ts(212,51): error TS2339: Property 'upload' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(213,81): error TS2345: Argument of type 'ExecuteRequest' is not assignable to parameter of type 'ExecutePOCInput'.
+  Types of property 'additionalParams' are incompatible.
+    Type 'Record<string, any> | undefined' is not assignable to type 'string | undefined'.
+      Type 'Record<string, any>' is not assignable to type 'string'.
+src/services/examples/api-usage.example.ts(218,35): error TS2339: Property 'createUploadFormData' does not exist on type 'GraphQLPOCService'.
+src/services/examples/api-usage.example.ts(219,35): error TS2339: Property 'getExecutionStatistics' does not exist on type 'GraphQLPOCService'.
+src/services/graphql/cve.service.ts(96,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/cve.service.ts(99,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(114,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(126,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/cve.service.ts(129,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(141,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/cve.service.ts(144,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(155,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/cve.service.ts(158,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(173,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(188,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/cve.service.ts(203,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(90,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/poc.service.ts(93,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(108,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(120,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/poc.service.ts(123,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(135,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/poc.service.ts(138,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(150,9): error TS2322: Type '"cache-and-network"' is not assignable to type 'FetchPolicy | undefined'.
+src/services/graphql/poc.service.ts(153,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(171,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(186,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(201,14): error TS18046: 'data' is of type 'unknown'.
+src/services/graphql/poc.service.ts(219,14): error TS18046: 'data' is of type 'unknown'.

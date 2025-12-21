@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { eq } from 'drizzle-orm';
 import postgres from 'postgres';
 import * as schema from './schema';
 
@@ -6,7 +7,7 @@ async function seed() {
   console.log('🌱 Seeding database...');
 
   // Initialize database connection
-  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/bughunting';
+  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/bughunting';
   const client = postgres(connectionString);
   const db = drizzle(client, { schema });
 
@@ -56,6 +57,25 @@ exploit.py -t http://target.com -c "id"`,
     }).returning();
 
     console.log('✓ Created CVE:', cve2[0].cveId);
+
+    // Create another sample CVE (CVE-2025-99999)
+    const existingCve3 = await db.select().from(schema.cves).where(eq(schema.cves.cveId, 'CVE-2025-99999'));
+
+    if (existingCve3.length === 0) {
+      const cve3 = await db.insert(schema.cves).values({
+        cveId: 'CVE-2025-99999',
+        title: 'Critical Buffer Overflow in Core Lib',
+        description: 'A heap-based buffer overflow vulnerability in the core processing library allows remote attackers to execute arbitrary code via specially crafted packets.',
+        severity: 'CRITICAL',
+        cvssScore: '9.9',
+        publishedDate: new Date('2025-02-01'),
+        affectedProducts: ['CoreLib 1.0', 'CoreLib 2.0'],
+        references: ['https://nvd.nist.gov/vuln/detail/CVE-2025-99999'],
+      }).returning();
+      console.log('✓ Created CVE:', cve3[0].cveId);
+    } else {
+      console.log('ℹ️ CVE CVE-2025-99999 already exists, skipping.');
+    }
 
     console.log('✅ Database seeded successfully!');
   } catch (error) {

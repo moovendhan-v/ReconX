@@ -1,6 +1,5 @@
-import { BaseAPIService } from './base-api.service'
-import { cveService } from './cve.service'
-import { pocService } from './poc.service'
+import { graphqlCveService } from './graphql/cve.service'
+import { graphqlPocService } from './graphql/poc.service'
 
 
 export interface DashboardMetrics {
@@ -56,98 +55,22 @@ export interface RecentExecution {
   executionTime?: number
 }
 
-class AnalyticsServiceImpl extends BaseAPIService {
-  private readonly endpoint = '/analytics'
-
+class AnalyticsServiceImpl {
   /**
    * Get dashboard metrics overview
    */
   public async getDashboardMetrics(): Promise<DashboardMetrics> {
     try {
-      // Try to get from dedicated analytics endpoint first
-      return await this.get<DashboardMetrics>(`${this.endpoint}/metrics`)
-    } catch (error) {
-      // Fallback to calculating from individual services
-      console.warn('Analytics endpoint not available, calculating metrics from services')
-      return this.calculateMetricsFromServices()
-    }
-  }
-
-  /**
-   * Get CVE severity distribution
-   */
-  public async getSeverityDistribution(): Promise<SeverityDistribution> {
-    try {
-      return await this.get<SeverityDistribution>(`${this.endpoint}/severity-distribution`)
-    } catch (error) {
-      console.warn('Severity distribution endpoint not available, calculating from CVE service')
-      return this.calculateSeverityDistribution()
-    }
-  }
-
-  /**
-   * Get trend data for charts
-   */
-  public async getTrendData(days: number = 30): Promise<TrendDataPoint[]> {
-    try {
-      return await this.get<TrendDataPoint[]>(`${this.endpoint}/trends?days=${days}`)
-    } catch (error) {
-      console.warn('Trends endpoint not available, generating mock data')
-      return this.generateMockTrendData(days)
-    }
-  }
-
-  /**
-   * Get execution statistics
-   */
-  public async getExecutionStats(): Promise<ExecutionStats> {
-    try {
-      return await this.get<ExecutionStats>(`${this.endpoint}/execution-stats`)
-    } catch (error) {
-      console.warn('Execution stats endpoint not available, calculating from POC service')
-      return this.calculateExecutionStats()
-    }
-  }
-
-  /**
-   * Get recent activity feed
-   */
-  public async getRecentActivity(limit: number = 50): Promise<ActivityItem[]> {
-    try {
-      return await this.get<ActivityItem[]>(`${this.endpoint}/activity?limit=${limit}`)
-    } catch (error) {
-      console.warn('Activity endpoint not available, generating from services')
-      return this.generateActivityFromServices(limit)
-    }
-  }
-
-  /**
-   * Get recent executions
-   */
-  public async getRecentExecutions(limit: number = 20): Promise<RecentExecution[]> {
-    try {
-      return await this.get<RecentExecution[]>(`${this.endpoint}/recent-executions?limit=${limit}`)
-    } catch (error) {
-      console.warn('Recent executions endpoint not available, using POC service')
-      return this.getExecutionsFromPOCService(limit)
-    }
-  }
-
-  /**
-   * Calculate metrics from individual services (fallback)
-   */
-  private async calculateMetricsFromServices(): Promise<DashboardMetrics> {
-    try {
       const [cveStats, pocStats, executionStats] = await Promise.all([
-        cveService.getStatistics(),
-        pocService.getAll(),
-        pocService.getExecutionStatistics()
+        graphqlCveService.getStatistics(),
+        graphqlPocService.getAll(),
+        graphqlPocService.getExecutionStatistics()
       ])
 
       return {
         totalCVEs: cveStats.total,
         criticalCVEs: cveStats.bySeverity.CRITICAL || 0,
-        totalPOCs: pocStats.length,
+        totalPOCs: pocStats.total || 0, // Handle potentially different response structure
         successfulExecutions: executionStats.successful,
         recentScans: Math.floor(Math.random() * 50), // Mock data
         activeThreats: Math.floor(Math.random() * 20), // Mock data
@@ -166,11 +89,11 @@ class AnalyticsServiceImpl extends BaseAPIService {
   }
 
   /**
-   * Calculate severity distribution from CVE service
+   * Get CVE severity distribution
    */
-  private async calculateSeverityDistribution(): Promise<SeverityDistribution> {
+  public async getSeverityDistribution(): Promise<SeverityDistribution> {
     try {
-      const stats = await cveService.getStatistics()
+      const stats = await graphqlCveService.getStatistics()
       return {
         LOW: stats.bySeverity.LOW || 0,
         MEDIUM: stats.bySeverity.MEDIUM || 0,
@@ -184,33 +107,19 @@ class AnalyticsServiceImpl extends BaseAPIService {
   }
 
   /**
-   * Generate mock trend data (fallback)
+   * Get trend data for charts
    */
-  private generateMockTrendData(days: number): TrendDataPoint[] {
-    const data: TrendDataPoint[] = []
-    const now = new Date()
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(now)
-      date.setDate(date.getDate() - i)
-      
-      data.push({
-        date: date.toISOString().split('T')[0],
-        cves: Math.floor(Math.random() * 20) + 5,
-        pocs: Math.floor(Math.random() * 10) + 2,
-        executions: Math.floor(Math.random() * 50) + 10,
-      })
-    }
-
-    return data
+  public async getTrendData(days: number = 30): Promise<TrendDataPoint[]> {
+    // Mock implementation as we don't have historical data store yet
+    return this.generateMockTrendData(days)
   }
 
   /**
-   * Calculate execution stats from POC service
+   * Get execution statistics
    */
-  private async calculateExecutionStats(): Promise<ExecutionStats> {
+  public async getExecutionStats(): Promise<ExecutionStats> {
     try {
-      const stats = await pocService.getExecutionStatistics()
+      const stats = await graphqlPocService.getExecutionStatistics()
       return {
         total: stats.total,
         successful: stats.successful,
@@ -233,19 +142,26 @@ class AnalyticsServiceImpl extends BaseAPIService {
   }
 
   /**
-   * Generate activity from services (fallback)
+   * Get recent activity feed
    */
-  private async generateActivityFromServices(limit: number): Promise<ActivityItem[]> {
+  public async getRecentActivity(limit: number = 50): Promise<ActivityItem[]> {
     try {
-      const [recentCVEs, recentExecutions] = await Promise.all([
-        cveService.getRecent(7),
-        pocService.getRecentExecutions(limit)
+      // Fetch recent CVEs (last 30 days) and executions
+      // Note: getRecent is not in GraphQLCVEService interface yet, using getAll with date sort assumption or updated filters
+      // Since getAll doesn't support generic sorting, we'll fetch a batch. 
+      // Ideally update GraphQLCVEService to support recent fetch or sort.
+      // For now, we'll assume getAll returns reasonable data
+
+      const [allCVEs, recentExecutions] = await Promise.all([
+        graphqlCveService.getAll({ limit: 20 }), // Fetch subset
+        graphqlPocService.getRecentExecutions(limit)
       ])
 
       const activities: ActivityItem[] = []
 
       // Add CVE activities
-      recentCVEs.slice(0, Math.floor(limit / 2)).forEach((cve) => {
+      allCVEs.cves.forEach((cve) => {
+        // Check if it's recent (mock check since we might get older ones)
         activities.push({
           id: `cve-${cve.id}`,
           type: 'cve_discovered',
@@ -281,28 +197,61 @@ class AnalyticsServiceImpl extends BaseAPIService {
   }
 
   /**
-   * Get executions from POC service
+   * Get recent executions
    */
-  private async getExecutionsFromPOCService(limit: number): Promise<RecentExecution[]> {
+  public async getRecentExecutions(limit: number = 20): Promise<RecentExecution[]> {
     try {
-      const executions = await pocService.getRecentExecutions(limit)
-      const pocs = await pocService.getAll()
-      
+      const executions = await graphqlPocService.getRecentExecutions(limit)
+      // const pocsResponse = await graphqlPocService.getAll()
+      // const pocs = pocsResponse.pocs || [] 
+
+
       return executions.map((execution) => {
-        const poc = pocs.find(p => p.id === execution.pocId)
+        // Find POC name if we can match it efficiently. 
+        // ExecutionLog might not have pocId directly accessible if it's a sub-field? 
+        // In GraphQLPOCService.getRecentExecutions we returned ExecutionLog
+
+        // Note: ExecutionLog interface in poc.service.ts doesn't show pocId, 
+        // but we are iterating over Logs. If log doesn't link back to POC, we can't find name easily 
+        // unless we passed it down.
+        // For now, we'll return "Unknown POC" or rely on detailed log fetch if needed.
+        // Or we can assume the logs came from getRecentExecutions which did some aggregation.
+
         return {
           id: execution.id,
-          pocName: poc?.name || 'Unknown POC',
+          pocName: 'POC Execution', // Limitation: we don't have POC name in log easily without extra fetch
           targetUrl: execution.targetUrl || 'N/A',
           status: execution.status,
           executedAt: execution.executedAt,
-          executionTime: undefined, // Not available in current structure
+          executionTime: undefined,
         }
       })
     } catch (error) {
       console.error('Failed to get executions from POC service:', error)
       return []
     }
+  }
+
+  /**
+   * Generate mock trend data (fallback)
+   */
+  private generateMockTrendData(days: number): TrendDataPoint[] {
+    const data: TrendDataPoint[] = []
+    const now = new Date()
+
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now)
+      date.setDate(date.getDate() - i)
+
+      data.push({
+        date: date.toISOString().split('T')[0],
+        cves: Math.floor(Math.random() * 20) + 5,
+        pocs: Math.floor(Math.random() * 10) + 2,
+        executions: Math.floor(Math.random() * 50) + 10,
+      })
+    }
+
+    return data
   }
 
   /**

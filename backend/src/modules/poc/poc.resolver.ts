@@ -1,51 +1,41 @@
 import { Resolver, Query, Mutation, Args, ID, ResolveField, Parent, Int } from '@nestjs/graphql';
-import { UseInterceptors } from '@nestjs/common';
-import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { PocService } from './poc.service';
 import { ExecutionService } from './execution.service';
-import { 
-  POC, 
-  CreatePOCInput, 
-  UpdatePOCInput, 
+import {
+  POC,
+  CreatePOCInput,
+  UpdatePOCInput,
   POCFiltersInput,
   POCListResponse,
   ExecutePOCInput,
   ExecuteResponse,
-  ExecutionLog,
-  CVE 
+  ExecutionLog
 } from './dto/poc.dto';
+import { CVE } from '../cve/dto/cve.dto';
 
 @Resolver(() => POC)
 export class PocResolver {
   constructor(
     private readonly pocService: PocService,
     private readonly executionService: ExecutionService,
-  ) {}
+  ) { }
 
   @Query(() => POCListResponse, { name: 'pocs' })
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(60) // Cache for 1 minute
   async findAll(@Args('filters', { nullable: true }) filters?: POCFiltersInput): Promise<POCListResponse> {
     return this.pocService.findAll(filters);
   }
 
   @Query(() => POC, { name: 'poc' })
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(300) // Cache for 5 minutes
   async findOne(@Args('id', { type: () => ID }) id: string): Promise<POC> {
     return this.pocService.findOne(id);
   }
 
   @Query(() => POC, { name: 'pocWithLogs' })
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(60) // Cache for 1 minute (logs change frequently)
   async findWithLogs(@Args('id', { type: () => ID }) id: string): Promise<POC> {
     return this.pocService.findWithLogs(id);
   }
 
   @Query(() => [POC], { name: 'pocsByCve' })
-  @UseInterceptors(CacheInterceptor)
-  @CacheTTL(180) // Cache for 3 minutes
   async findByCveId(@Args('cveId') cveId: string): Promise<POC[]> {
     return this.pocService.findByCveId(cveId);
   }

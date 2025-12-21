@@ -3,13 +3,13 @@ import { eq, desc, and, or, like, count } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
 import { pocs, cves, executionLogs } from '../../db/schema';
-import { 
-  POC, 
-  CreatePOCInput, 
-  UpdatePOCInput, 
+import {
+  POC,
+  CreatePOCInput,
+  UpdatePOCInput,
   POCFiltersInput,
   POCListResponse,
-  ExecutionLog 
+  ExecutionLog
 } from './dto/poc.dto';
 
 @Injectable()
@@ -17,15 +17,17 @@ export class PocService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
 
   async findAll(filters: POCFiltersInput = {}): Promise<POCListResponse> {
     const db = this.databaseService.getDb();
-    const { cveId, language, author, search } = filters;
+    const { cveId, language, author, search, limit, offset } = filters;
 
     // Build where conditions
     const conditions = [];
-    
+
+    // ... (existing conditions) ...
+
     if (cveId) {
       conditions.push(eq(pocs.cveId, cveId));
     }
@@ -57,11 +59,21 @@ export class PocService {
       .where(whereClause);
 
     // Get results
-    const results = await db
+    let query: any = db
       .select()
       .from(pocs)
       .where(whereClause)
       .orderBy(desc(pocs.createdAt));
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    if (offset) {
+      query = query.offset(offset);
+    }
+
+    const results = await query;
 
     return {
       pocs: results.map(this.mapPOCFromDb),
@@ -101,7 +113,7 @@ export class PocService {
     const db = this.databaseService.getDb();
 
     const poc = await this.findOne(id);
-    
+
     const logResults = await db
       .select()
       .from(executionLogs)

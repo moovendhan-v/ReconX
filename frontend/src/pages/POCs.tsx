@@ -8,19 +8,19 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { 
-  Search, 
-  Filter, 
-  FileText, 
-  Play, 
-  History, 
+import {
+  Search,
+  Filter,
+  FileText,
+  Play,
+  History,
   Terminal,
   AlertTriangle,
   Loader2,
   RefreshCw
 } from 'lucide-react'
 import { POCExecutionForm, POCTerminal, POCExecutionHistory } from '@/components/poc'
-import { pocService } from '@/services/poc.service'
+import { graphqlPocService as pocService } from '@/services/graphql/poc.service'
 import type { POC, ExecutionLog, ExecuteRequest, ExecuteResponse, POCFilters } from '@/types'
 
 export default function POCs() {
@@ -54,7 +54,7 @@ export default function POCs() {
         filters.language = languageFilter
       }
       const data = await pocService.getAll(filters)
-      setPocs(data)
+      setPocs(data.pocs)
     } catch (err: any) {
       setError(err.message || 'Failed to load POCs')
     } finally {
@@ -79,10 +79,10 @@ export default function POCs() {
     setIsExecuting(true)
     try {
       const result = await pocService.execute(selectedPoc.id, request)
-      
+
       // Refresh execution logs after successful execution
       await loadExecutionLogs(selectedPoc.id)
-      
+
       return result
     } finally {
       setIsExecuting(false)
@@ -104,7 +104,7 @@ Command: ${log.command || 'N/A'}
 Output:
 ${log.output || 'No output'}
 `
-    
+
     const blob = new Blob([logText], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -117,13 +117,13 @@ ${log.output || 'No output'}
   }
 
   const filteredPocs = pocs.filter(poc => {
-    const matchesSearch = !searchQuery || 
+    const matchesSearch = !searchQuery ||
       poc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       poc.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       poc.cveId.toLowerCase().includes(searchQuery.toLowerCase())
-    
+
     const matchesLanguage = languageFilter === 'all' || poc.language === languageFilter
-    
+
     return matchesSearch && matchesLanguage
   })
 
@@ -186,7 +186,7 @@ ${log.output || 'No output'}
                       className="pl-10"
                     />
                   </div>
-                  
+
                   <Select value={languageFilter} onValueChange={setLanguageFilter}>
                     <SelectTrigger>
                       <Filter className="h-4 w-4 mr-2" />
@@ -224,9 +224,8 @@ ${log.output || 'No output'}
                     filteredPocs.map((poc) => (
                       <div
                         key={poc.id}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${
-                          selectedPoc?.id === poc.id ? 'border-primary bg-primary/5' : ''
-                        }`}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 ${selectedPoc?.id === poc.id ? 'border-primary bg-primary/5' : ''
+                          }`}
                         onClick={() => setSelectedPoc(poc)}
                       >
                         <div className="space-y-2">

@@ -1,21 +1,9 @@
 import { ObjectType, Field, ID, InputType, registerEnumType, Int } from '@nestjs/graphql';
-import { IsString, IsOptional, IsEnum, IsUrl, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsUrl, IsObject, IsInt, Min } from 'class-validator';
+import { CVE } from '../../cve/dto/cve.dto';
 
 // Forward reference to avoid circular dependency
-@ObjectType()
-export class CVE {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  cveId: string;
-
-  @Field()
-  title: string;
-
-  @Field()
-  description: string;
-}
+// CVE is imported from cve.dto.ts
 
 export enum ExecutionStatus {
   SUCCESS = 'SUCCESS',
@@ -222,6 +210,18 @@ export class POCFiltersInput {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  limit?: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  offset?: number;
 }
 
 @ObjectType()

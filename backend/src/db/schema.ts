@@ -4,6 +4,9 @@ import { relations } from 'drizzle-orm';
 // Enums
 export const severityEnum = pgEnum('severity', ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
 export const executionStatusEnum = pgEnum('execution_status', ['SUCCESS', 'FAILED', 'TIMEOUT', 'RUNNING']);
+export const scanStatusEnum = pgEnum('scan_status', ['PENDING', 'RUNNING', 'COMPLETED', 'FAILED']);
+export const scanTypeEnum = pgEnum('scan_type', ['QUICK', 'FULL', 'CUSTOM']);
+export const reportTypeEnum = pgEnum('report_type', ['SCAN', 'CVE', 'POC', 'CUSTOM']);
 
 // CVEs Table
 export const cves = pgTable('cves', {
@@ -45,6 +48,52 @@ export const executionLogs = pgTable('execution_logs', {
   executedAt: timestamp('executed_at').defaultNow().notNull(),
 });
 
+// Scans Table
+export const scans = pgTable('scans', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  target: varchar('target', { length: 500 }).notNull(),
+  type: scanTypeEnum('type').notNull(),
+  status: scanStatusEnum('status').notNull().default('PENDING'),
+  results: jsonb('results'),
+  startedAt: timestamp('started_at'),
+  completedAt: timestamp('completed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Reports Table
+export const reports = pgTable('reports', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
+  type: reportTypeEnum('type').notNull(),
+  content: jsonb('content').notNull(),
+  generatedBy: varchar('generated_by', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// Projects Table
+export const projects = pgTable('projects', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  status: varchar('status', { length: 50 }).notNull().default('ACTIVE'),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Activity Logs Table
+export const activityLogs = pgTable('activity_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  action: varchar('action', { length: 255 }).notNull(),
+  entity: varchar('entity', { length: 100 }).notNull(),
+  entityId: uuid('entity_id'),
+  details: jsonb('details'),
+  performedBy: varchar('performed_by', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const cvesRelations = relations(cves, ({ many }) => ({
   pocs: many(pocs),
@@ -72,3 +121,11 @@ export type POC = typeof pocs.$inferSelect;
 export type NewPOC = typeof pocs.$inferInsert;
 export type ExecutionLog = typeof executionLogs.$inferSelect;
 export type NewExecutionLog = typeof executionLogs.$inferInsert;
+export type Scan = typeof scans.$inferSelect;
+export type NewScan = typeof scans.$inferInsert;
+export type Report = typeof reports.$inferSelect;
+export type NewReport = typeof reports.$inferInsert;
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export type NewActivityLog = typeof activityLogs.$inferInsert;

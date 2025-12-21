@@ -1,0 +1,364 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input ActivityFiltersInput {
+  action: String
+  entity: String
+  limit: Int = 50
+  offset: Int = 0
+}
+
+type ActivityListResponse {
+  activities: [ActivityLog!]!
+  total: Int!
+}
+
+type ActivityLog {
+  action: String!
+  createdAt: DateTime!
+  details: JSON
+  entity: String!
+  entityId: String
+  id: String!
+  performedBy: String
+}
+
+type CVE {
+  affectedProducts: [String!]
+  createdAt: DateTime!
+  cveId: String!
+  cvssScore: String
+  description: String!
+  id: ID!
+  pocs: [POC!]
+  publishedDate: DateTime
+  references: [String!]
+  severity: Severity!
+  title: String!
+  updatedAt: DateTime!
+}
+
+input CVEFiltersInput {
+  dateFrom: String
+  dateTo: String
+  limit: Int = 20
+  page: Int = 1
+  search: String
+  severity: Severity
+}
+
+type CVEListResponse {
+  cves: [CVE!]!
+  limit: Int!
+  page: Int!
+  total: Int!
+  totalPages: Int!
+}
+
+type CVESeverityStats {
+  CRITICAL: Int!
+  HIGH: Int!
+  LOW: Int!
+  MEDIUM: Int!
+}
+
+type CVEStatistics {
+  bySeverity: CVESeverityStats!
+  recent: Int!
+  total: Int!
+}
+
+input CreateActivityLogInput {
+  action: String!
+  details: JSON
+  entity: String!
+  entityId: String
+  performedBy: String
+}
+
+input CreateCVEInput {
+  affectedProducts: [String!]
+  cveId: String!
+  cvssScore: String
+  description: String!
+  publishedDate: String
+  references: [String!]
+  severity: Severity!
+  title: String!
+}
+
+input CreatePOCInput {
+  author: String
+  cveId: String!
+  description: String!
+  language: String!
+  name: String!
+  scriptPath: String!
+  usageExamples: String
+}
+
+input CreateProjectInput {
+  description: String
+  metadata: JSON
+  name: String!
+}
+
+input CreateReportInput {
+  content: JSON!
+  generatedBy: String
+  title: String!
+  type: ReportType!
+}
+
+input CreateScanInput {
+  name: String!
+  target: String!
+  type: ScanType!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input ExecutePOCInput {
+  additionalParams: String
+  command: String!
+  targetUrl: String!
+}
+
+type ExecuteResponse {
+  log: ExecutionLog!
+  message: String!
+  result: ExecutionResult!
+}
+
+type ExecutionLog {
+  command: String
+  executedAt: DateTime!
+  id: ID!
+  output: String
+  poc: POC
+  pocId: String!
+  status: ExecutionStatus!
+  targetUrl: String
+}
+
+type ExecutionResult {
+  error: String
+  output: String!
+  success: Boolean!
+}
+
+"""POC execution status"""
+enum ExecutionStatus {
+  FAILED
+  RUNNING
+  SUCCESS
+  TIMEOUT
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+  createActivityLog(input: CreateActivityLogInput!): ActivityLog!
+  createCve(input: CreateCVEInput!): CVE!
+  createPoc(input: CreatePOCInput!): POC!
+  createProject(input: CreateProjectInput!): Project!
+  createReport(input: CreateReportInput!): Report!
+  createScan(input: CreateScanInput!): Scan!
+  deleteCve(id: ID!): Boolean!
+  deletePoc(id: ID!): Boolean!
+  deleteProject(id: String!): Boolean!
+  deleteReport(id: String!): Boolean!
+  deleteScan(id: String!): Boolean!
+  executePoc(input: ExecutePOCInput!, pocId: String!): ExecuteResponse!
+  startScan(id: String!): Scan!
+  updateCve(id: ID!, input: UpdateCVEInput!): CVE!
+  updatePoc(id: ID!, input: UpdatePOCInput!): POC!
+  updateProject(id: String!, input: UpdateProjectInput!): Project!
+  updateScan(id: String!, input: UpdateScanInput!): Scan!
+}
+
+type POC {
+  author: String
+  createdAt: DateTime!
+  cve: CVE
+  cveId: String!
+  description: String!
+  executionLogs: [ExecutionLog!]
+  id: ID!
+  language: String!
+  name: String!
+  scriptPath: String!
+  updatedAt: DateTime!
+  usageExamples: String
+}
+
+input POCFiltersInput {
+  author: String
+  cveId: String
+  language: String
+  limit: Int
+  offset: Int
+  search: String
+}
+
+type POCListResponse {
+  pocs: [POC!]!
+  total: Int!
+}
+
+type Project {
+  createdAt: DateTime!
+  description: String
+  id: String!
+  metadata: JSON
+  name: String!
+  status: String!
+  updatedAt: DateTime!
+}
+
+input ProjectFiltersInput {
+  limit: Int = 20
+  offset: Int = 0
+  search: String
+  status: String
+}
+
+type ProjectListResponse {
+  projects: [Project!]!
+  total: Int!
+}
+
+type Query {
+  activities(filters: ActivityFiltersInput): ActivityListResponse!
+  cve(id: ID!): CVE!
+  cveByNumber(cveId: String!): CVE!
+  cveStatistics: CVEStatistics!
+  cveWithPocs(id: ID!): CVE!
+  cves(filters: CVEFiltersInput): CVEListResponse!
+  poc(id: ID!): POC!
+  pocLogs(limit: Int = 50, pocId: String!): [ExecutionLog!]!
+  pocWithLogs(id: ID!): POC!
+  pocs(filters: POCFiltersInput): POCListResponse!
+  pocsByCve(cveId: String!): [POC!]!
+  project(id: String!): Project
+  projects(filters: ProjectFiltersInput): ProjectListResponse!
+  report(id: String!): Report
+  reports(filters: ReportFiltersInput): ReportListResponse!
+  scan(id: String!): Scan
+  scans(filters: ScanFiltersInput): ScanListResponse!
+  searchCves(query: String!): [CVE!]!
+}
+
+type Report {
+  content: JSON!
+  createdAt: DateTime!
+  generatedBy: String
+  id: String!
+  title: String!
+  type: ReportType!
+}
+
+input ReportFiltersInput {
+  limit: Int = 20
+  offset: Int = 0
+  search: String
+  type: ReportType
+}
+
+type ReportListResponse {
+  reports: [Report!]!
+  total: Int!
+}
+
+enum ReportType {
+  CUSTOM
+  CVE
+  POC
+  SCAN
+}
+
+type Scan {
+  completedAt: DateTime
+  createdAt: DateTime!
+  id: String!
+  name: String!
+  results: JSON
+  startedAt: DateTime
+  status: ScanStatus!
+  target: String!
+  type: ScanType!
+  updatedAt: DateTime!
+}
+
+input ScanFiltersInput {
+  limit: Int = 20
+  offset: Int = 0
+  search: String
+  status: ScanStatus
+  type: ScanType
+}
+
+type ScanListResponse {
+  scans: [Scan!]!
+  total: Int!
+}
+
+enum ScanStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  RUNNING
+}
+
+enum ScanType {
+  CUSTOM
+  FULL
+  QUICK
+}
+
+"""CVE severity levels"""
+enum Severity {
+  CRITICAL
+  HIGH
+  LOW
+  MEDIUM
+}
+
+input UpdateCVEInput {
+  affectedProducts: [String!]
+  cvssScore: String
+  description: String
+  publishedDate: String
+  references: [String!]
+  severity: Severity
+  title: String
+}
+
+input UpdatePOCInput {
+  author: String
+  description: String
+  language: String
+  name: String
+  scriptPath: String
+  usageExamples: String
+}
+
+input UpdateProjectInput {
+  description: String
+  metadata: JSON
+  name: String
+  status: String
+}
+
+input UpdateScanInput {
+  name: String
+  results: JSON
+  status: ScanStatus
+}

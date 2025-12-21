@@ -8,6 +8,11 @@ import { CveModule } from './modules/cve/cve.module';
 import { PocModule } from './modules/poc/poc.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { RedisModule } from './modules/redis/redis.module';
+import { HealthModule } from './modules/health/health.module';
+import { ScansModule } from './modules/scans/scans.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { ProjectsModule } from './modules/projects/projects.module';
+import { ActivityModule } from './modules/activity/activity.module';
 
 @Module({
   imports: [
@@ -30,14 +35,15 @@ import { RedisModule } from './modules/redis/redis.module';
         };
       },
     }),
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 300, // 5 minutes default TTL
-    }),
     DatabaseModule,
     RedisModule,
     CveModule,
     PocModule,
+    ScansModule,
+    ReportsModule,
+    ProjectsModule,
+    ActivityModule,
+    HealthModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

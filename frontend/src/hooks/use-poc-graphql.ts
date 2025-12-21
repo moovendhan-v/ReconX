@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useApolloClient } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client/react';
 import { 
   GET_POCS, 
   GET_POC, 

@@ -1,13 +1,24 @@
-// Re-export enhanced services for backward compatibility
-export { cveService } from './cve.service';
-export { pocService } from './poc.service';
-export { analyticsService } from './analytics.service';
-export { baseAPIService as api } from './base-api.service';
+// Export GraphQL services as the primary API services
+export { graphqlCveService as cveService } from './graphql/cve.service';
+export { graphqlPocService as pocService } from './graphql/poc.service';
 
-// Export service classes for advanced usage
-export { CVEServiceImpl } from './cve.service';
-export { POCServiceImpl } from './poc.service';
-export { BaseAPIService } from './base-api.service';
+// Re-export types
+export type {
+    CVE,
+    CVEFilters,
+    CVEListResponse,
+    CVEStatistics,
+    CreateCVEInput,
+    UpdateCVEInput
+} from './graphql/cve.service';
 
-// Export configuration
-export { getAPIConfig, defaultAPIConfig } from './api.config';
+export type {
+    POC,
+    POCFilters,
+    POCListResponse,
+    CreatePOCInput,
+    UpdatePOCInput,
+    ExecutePOCInput,
+    ExecuteResponse,
+    ExecutionLog
+} from './graphql/poc.service';
