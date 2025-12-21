@@ -21,6 +21,7 @@ const scans_module_1 = require("./modules/scans/scans.module");
 const reports_module_1 = require("./modules/reports/reports.module");
 const projects_module_1 = require("./modules/projects/projects.module");
 const activity_module_1 = require("./modules/activity/activity.module");
+const datetime_scalar_1 = require("./common/scalars/datetime.scalar");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -56,6 +57,7 @@ exports.AppModule = AppModule = __decorate([
             activity_module_1.ActivityModule,
             health_module_1.HealthModule,
         ],
+        providers: [datetime_scalar_1.DateTimeScalar],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

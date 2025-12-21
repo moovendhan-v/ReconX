@@ -37,11 +37,11 @@ __decorate([
     __metadata("design:type", Object)
 ], Project.prototype, "metadata", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], Project.prototype, "createdAt", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], Project.prototype, "updatedAt", void 0);
 exports.Project = Project = __decorate([

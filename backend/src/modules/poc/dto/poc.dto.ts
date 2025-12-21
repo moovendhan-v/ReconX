@@ -43,10 +43,10 @@ export class POC {
   @Field({ nullable: true })
   author?: string;
 
-  @Field()
+  @Field(() => Date)
   createdAt: Date;
 
-  @Field()
+  @Field(() => Date)
   updatedAt: Date;
 
   @Field(() => CVE, { nullable: true })
@@ -76,7 +76,7 @@ export class ExecutionLog {
   @Field(() => ExecutionStatus)
   status: ExecutionStatus;
 
-  @Field()
+  @Field(() => Date)
   executedAt: Date;
 
   @Field(() => POC, { nullable: true })

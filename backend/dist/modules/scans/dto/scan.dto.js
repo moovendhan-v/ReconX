@@ -56,19 +56,19 @@ __decorate([
     __metadata("design:type", Object)
 ], Scan.prototype, "results", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
     __metadata("design:type", Date)
 ], Scan.prototype, "startedAt", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
     __metadata("design:type", Date)
 ], Scan.prototype, "completedAt", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], Scan.prototype, "createdAt", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], Scan.prototype, "updatedAt", void 0);
 exports.Scan = Scan = __decorate([

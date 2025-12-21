@@ -41,7 +41,7 @@ __decorate([
     __metadata("design:type", String)
 ], ActivityLog.prototype, "performedBy", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], ActivityLog.prototype, "createdAt", void 0);
 exports.ActivityLog = ActivityLog = __decorate([

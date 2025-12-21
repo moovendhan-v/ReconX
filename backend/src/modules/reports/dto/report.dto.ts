@@ -28,7 +28,7 @@ export class Report {
     @Field({ nullable: true })
     generatedBy?: string;
 
-    @Field()
+    @Field(() => Date)
     createdAt: Date;
 }
 

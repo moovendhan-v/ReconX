@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", String)
 ], Report.prototype, "generatedBy", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], Report.prototype, "createdAt", void 0);
 exports.Report = Report = __decorate([

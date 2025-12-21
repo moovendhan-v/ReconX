@@ -38,16 +38,16 @@ export class Scan {
     @Field(() => GraphQLJSON, { nullable: true })
     results?: any;
 
-    @Field({ nullable: true })
+    @Field(() => Date, { nullable: true })
     startedAt?: Date;
 
-    @Field({ nullable: true })
+    @Field(() => Date, { nullable: true })
     completedAt?: Date;
 
-    @Field()
+    @Field(() => Date)
     createdAt: Date;
 
-    @Field()
+    @Field(() => Date)
     updatedAt: Date;
 }
 

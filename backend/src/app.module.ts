@@ -13,6 +13,7 @@ import { ScansModule } from './modules/scans/scans.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { DateTimeScalar } from './common/scalars/datetime.scalar';
 
 @Module({
   imports: [
@@ -45,5 +46,6 @@ import { ActivityModule } from './modules/activity/activity.module';
     ActivityModule,
     HealthModule,
   ],
+  providers: [DateTimeScalar],
 })
 export class AppModule { }

@@ -60,11 +60,11 @@ __decorate([
     __metadata("design:type", String)
 ], POC.prototype, "author", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], POC.prototype, "createdAt", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], POC.prototype, "updatedAt", void 0);
 __decorate([
@@ -106,7 +106,7 @@ __decorate([
     __metadata("design:type", String)
 ], ExecutionLog.prototype, "status", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], ExecutionLog.prototype, "executedAt", void 0);
 __decorate([

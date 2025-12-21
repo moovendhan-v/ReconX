@@ -52,7 +52,7 @@ __decorate([
     __metadata("design:type", String)
 ], CVE.prototype, "cvssScore", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
+    (0, graphql_1.Field)(() => Date, { nullable: true }),
     __metadata("design:type", Date)
 ], CVE.prototype, "publishedDate", void 0);
 __decorate([
@@ -64,11 +64,11 @@ __decorate([
     __metadata("design:type", Array)
 ], CVE.prototype, "references", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], CVE.prototype, "createdAt", void 0);
 __decorate([
-    (0, graphql_1.Field)(),
+    (0, graphql_1.Field)(() => Date),
     __metadata("design:type", Date)
 ], CVE.prototype, "updatedAt", void 0);
 __decorate([

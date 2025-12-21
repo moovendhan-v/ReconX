@@ -19,10 +19,10 @@ export class Project {
     @Field(() => GraphQLJSON, { nullable: true })
     metadata?: any;
 
-    @Field()
+    @Field(() => Date)
     createdAt: Date;
 
-    @Field()
+    @Field(() => Date)
     updatedAt: Date;
 }
 

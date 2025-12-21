@@ -22,7 +22,7 @@ export class ActivityLog {
     @Field({ nullable: true })
     performedBy?: string;
 
-    @Field()
+    @Field(() => Date)
     createdAt: Date;
 }
 

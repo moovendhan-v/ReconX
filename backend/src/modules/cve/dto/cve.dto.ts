@@ -34,7 +34,7 @@ export class CVE {
   @Field({ nullable: true })
   cvssScore?: string;
 
-  @Field({ nullable: true })
+  @Field(() => Date, { nullable: true })
   publishedDate?: Date;
 
   @Field(() => [String], { nullable: true })
@@ -43,10 +43,10 @@ export class CVE {
   @Field(() => [String], { nullable: true })
   references?: string[];
 
-  @Field()
+  @Field(() => Date)
   createdAt: Date;
 
-  @Field()
+  @Field(() => Date)
   updatedAt: Date;
 
   @Field(() => [POC], { nullable: true })
