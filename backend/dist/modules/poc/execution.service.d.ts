@@ -6,7 +6,6 @@ export declare class ExecutionService {
     private readonly databaseService;
     private readonly pocService;
     private readonly executionLogsGateway;
-    private readonly pythonCoreUrl;
     constructor(databaseService: DatabaseService, pocService: PocService, executionLogsGateway: ExecutionLogsGateway);
     executePOC(pocId: string, input: ExecutePOCInput): Promise<ExecuteResponse>;
 }

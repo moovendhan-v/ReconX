@@ -31,11 +31,11 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend API
+  # Backend API (with Python)
   backend:
     build:
-      context: ./backend
-      dockerfile: ../docker/backend.Dockerfile
+      context: .
+      dockerfile: docker/backend.Dockerfile
     container_name: bughunting-backend
     ports:
       - "3000:3000"
@@ -43,29 +43,18 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/bughunting
       REDIS_URL: redis://redis:6379
       PORT: 3000
-      PYTHON_CORE_URL: http://python-core:8000
       UPLOAD_DIR: /app/uploads
-      NODE_ENV: production
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+      - ./python-core:/app/python-core
+      - /app/node_modules
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      python-core:
-        condition: service_started
-    command: node dist/main.js
-
-  # Python Core Executor
-  python-core:
-    build:
-      context: ./python-core
-      dockerfile: ../docker/python-core.Dockerfile
-    container_name: bughunting-python-core
-    ports:
-      - "8000:8000"
-    environment:
-      REDIS_URL: redis://redis:6379
-    command: /app/venv/bin/python api.py
+    command: npm run start:dev
 
   # Frontend
   frontend:

@@ -8,6 +8,13 @@
       "when": 1765721760842,
       "tag": "0000_long_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1766321616064,
+      "tag": "0001_new_tattoo",
+      "breakpoints": true
     }
   ]
 }

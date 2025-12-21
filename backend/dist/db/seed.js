@@ -29,10 +29,10 @@ async function seed() {
             name: 'React2Shell - CVE-2025-55182 Exploit',
             description: 'Automated exploitation tool for CVE-2025-55182. Crafts malicious payloads to achieve remote code execution on vulnerable Next.js servers.',
             language: 'python',
-            scriptPath: '/app/exploits/react2shell/exploit.py',
-            usageExamples: `exploit.py -t localhost:3000 -c "whoami"
-exploit.py -t http://target.com -c "cat /etc/passwd"
-exploit.py -t http://target.com -c "id"`,
+            scriptPath: 'python-core/exploits/CVE-2025-55182/exploit.py',
+            usageExamples: `python3 exploit.py -t localhost:3000 -c "whoami"
+python3 exploit.py -t http://target.com -c "cat /etc/passwd"
+python3 exploit.py -t http://target.com -c "id"`,
             author: 'Moovendhan V',
         }).returning();
         console.log('✓ Created POC:', poc[0].name);
