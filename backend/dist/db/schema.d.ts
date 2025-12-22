@@ -388,6 +388,18 @@ export declare const executionLogs: import("drizzle-orm/pg-core").PgTableWithCol
             enumValues: undefined;
             baseColumn: never;
         }, {}, {}>;
+        userId: import("drizzle-orm/pg-core").PgColumn<{
+            name: "user_id";
+            tableName: "execution_logs";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
         targetUrl: import("drizzle-orm/pg-core").PgColumn<{
             name: "target_url";
             tableName: "execution_logs";

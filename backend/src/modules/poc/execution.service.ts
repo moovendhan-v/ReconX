@@ -48,6 +48,7 @@ export class ExecutionService {
       .insert(executionLogs)
       .values({
         pocId,
+        userId, // Add userId for user isolation
         targetUrl: input.targetUrl,
         command: fullCommand,
         status: ExecutionStatus.RUNNING,

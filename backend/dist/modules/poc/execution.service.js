@@ -40,6 +40,7 @@ let ExecutionService = class ExecutionService {
             .insert(schema_1.executionLogs)
             .values({
             pocId,
+            userId,
             targetUrl: input.targetUrl,
             command: fullCommand,
             status: poc_dto_1.ExecutionStatus.RUNNING,

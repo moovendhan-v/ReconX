@@ -52,6 +52,7 @@ export const pocs = pgTable('pocs', {
 export const executionLogs = pgTable('execution_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
   pocId: uuid('poc_id').references(() => pocs.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   targetUrl: varchar('target_url', { length: 500 }),
   command: text('command'),
   output: text('output'),

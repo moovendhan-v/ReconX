@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [signupMutation] = useMutation(SIGNUP_MUTATION);
 
     // Query for current user if token exists
-    const { refetch: refetchMe } = useQuery(ME_QUERY, {
+    useQuery(ME_QUERY, {
         skip: !token,
         onCompleted: (data: any) => {
             setUser(data.me);
@@ -47,12 +47,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     useEffect(() => {
-        if (token) {
-            refetchMe();
-        } else {
+        if (!token) {
             setIsLoading(false);
         }
-    }, [token, refetchMe]);
+    }, [token]);
 
     const login = async (email: string, password: string) => {
         try {
@@ -66,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('auth-token', newToken);
             setToken(newToken);
             setUser(newUser);
+            setIsLoading(false); // Explicitly stop loading
 
             // Reset Apollo cache to clear any previous user's data
             await apolloClient.resetStore();
@@ -87,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('auth-token', newToken);
             setToken(newToken);
             setUser(newUser);
+            setIsLoading(false); // Explicitly stop loading
 
             // Reset Apollo cache
             await apolloClient.resetStore();

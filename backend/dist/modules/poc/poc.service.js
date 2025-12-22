@@ -84,7 +84,7 @@ let PocService = class PocService {
         const logResults = await db
             .select()
             .from(schema_1.executionLogs)
-            .where((0, drizzle_orm_1.eq)(schema_1.executionLogs.pocId, id))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.executionLogs.pocId, id), (0, drizzle_orm_1.eq)(schema_1.executionLogs.userId, userId)))
             .orderBy((0, drizzle_orm_1.desc)(schema_1.executionLogs.executedAt))
             .limit(50);
         poc.executionLogs = logResults.map(log => ({
@@ -166,7 +166,7 @@ let PocService = class PocService {
         const results = await db
             .select()
             .from(schema_1.executionLogs)
-            .where((0, drizzle_orm_1.eq)(schema_1.executionLogs.pocId, pocId))
+            .where((0, drizzle_orm_1.and)((0, drizzle_orm_1.eq)(schema_1.executionLogs.pocId, pocId), (0, drizzle_orm_1.eq)(schema_1.executionLogs.userId, userId)))
             .orderBy((0, drizzle_orm_1.desc)(schema_1.executionLogs.executedAt))
             .limit(Math.min(limit, 100));
         return results.map(log => ({

@@ -118,7 +118,7 @@ export class PocService {
     const logResults = await db
       .select()
       .from(executionLogs)
-      .where(eq(executionLogs.pocId, id))
+      .where(and(eq(executionLogs.pocId, id), eq(executionLogs.userId, userId)))
       .orderBy(desc(executionLogs.executedAt))
       .limit(50); // Limit to last 50 executions
 
@@ -227,7 +227,7 @@ export class PocService {
     const results = await db
       .select()
       .from(executionLogs)
-      .where(eq(executionLogs.pocId, pocId))
+      .where(and(eq(executionLogs.pocId, pocId), eq(executionLogs.userId, userId)))
       .orderBy(desc(executionLogs.executedAt))
       .limit(Math.min(limit, 100)); // Max 100 logs
 

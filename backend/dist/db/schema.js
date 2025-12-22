@@ -45,6 +45,7 @@ exports.pocs = (0, pg_core_1.pgTable)('pocs', {
 exports.executionLogs = (0, pg_core_1.pgTable)('execution_logs', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     pocId: (0, pg_core_1.uuid)('poc_id').references(() => exports.pocs.id, { onDelete: 'cascade' }).notNull(),
+    userId: (0, pg_core_1.uuid)('user_id').references(() => exports.users.id, { onDelete: 'cascade' }).notNull(),
     targetUrl: (0, pg_core_1.varchar)('target_url', { length: 500 }),
     command: (0, pg_core_1.text)('command'),
     output: (0, pg_core_1.text)('output'),
