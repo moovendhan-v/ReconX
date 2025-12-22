@@ -31,26 +31,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [signupMutation] = useMutation(SIGNUP_MUTATION);
 
     // Query for current user if token exists
-    useQuery(ME_QUERY, {
+    const { loading: meLoading, data: meData, error: meError } = useQuery(ME_QUERY, {
         skip: !token,
+        fetchPolicy: 'network-only', // Always fetch fresh data on reload
         onCompleted: (data: any) => {
             setUser(data.me);
-            setIsLoading(false);
         },
         onError: () => {
             // Token is invalid, clear it
             localStorage.removeItem('auth-token');
             setToken(null);
             setUser(null);
-            setIsLoading(false);
         },
     });
 
+    // Manage loading state based on token and query state
     useEffect(() => {
         if (!token) {
+            // No token, not loading
+            setIsLoading(false);
+        } else if (!meLoading && (meData || meError)) {
+            // Query completed (success or error)
             setIsLoading(false);
         }
-    }, [token]);
+    }, [token, meLoading, meData, meError]);
 
     const login = async (email: string, password: string) => {
         try {
