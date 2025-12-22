@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Loader2, Save, FileText, AlertTriangle } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CVESelector } from './cve-selector'
 import { graphqlPocService } from '@/services/graphql/poc.service'
 import { useNavigate } from 'react-router-dom'
 
@@ -102,7 +103,7 @@ export function POCCreationForm() {
                                     <FormItem>
                                         <FormLabel>CVE ID</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. CVE-2024-1234" {...field} />
+                                            <CVESelector value={field.value} onValueChange={field.onChange} />
                                         </FormControl>
                                         <FormDescription>
                                             The CVE ID this POC targets
