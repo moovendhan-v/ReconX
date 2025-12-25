@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React2Shell - CVE-2025-55182</title>
+    <link rel="stylesheet" href="../styles/popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" />
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" />
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <h1>React2Shell</h1>
+            </div>
+            <div class="status" id="scanStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Ready</span>
+            </div>
+        </header>
+
+        <!-- CVE Info -->
+        <section class="cve-info-section">
+            <div class="cve-badge">CVE-2025-55182</div>
+            <h3>Next.js RSC Remote Code Execution</h3>
+            <p class="cve-desc">Exploits React Server Components vulnerability in Next.js applications</p>
+        </section>
+
+        <!-- Target Configuration -->
+        <section class="config-section">
+            <h2>🎯 Target Configuration</h2>
+
+            <div class="input-group">
+                <label for="targetUrl">Target URL *</label>
+                <input type="text" id="targetUrl" placeholder="https://profile.cybertechmind.com" />
+            </div>
+
+            <div class="input-group">
+                <label for="command">Command to Execute *</label>
+                <input type="text" id="command" placeholder="ls" value="whoami" />
+            </div>
+
+            <div class="input-group">
+                <label>
+                    <input type="checkbox" id="autoDetect" checked />
+                    Auto-detect from current tab
+                </label>
+            </div>
+        </section>
+
+        <!-- Exploit Controls -->
+        <section class="exploit-controls">
+            <button id="exploitBtn" class="btn btn-exploit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" stroke="currentColor" stroke-width="2"
+                        fill="currentColor" />
+                </svg>
+                Execute Exploit
+            </button>
+            <button id="clearLogsBtn" class="btn btn-secondary">Clear Logs</button>
+        </section>
+
+        <!-- Connection Status -->
+        <section class="connection-section">
+            <div class="connection-status" id="connectionStatus">
+                <span class="connection-dot offline"></span>
+                <span class="connection-text">Disconnected from backend</span>
+            </div>
+            <div class="backend-url">
+                <input type="text" id="backendUrl" value="http://localhost:3001" placeholder="Backend URL" />
+                <button id="connectBtn" class="btn btn-small">Connect</button>
+            </div>
+        </section>
+
+        <!-- Live Logs -->
+        <section class="logs-section">
+            <div class="logs-header">
+                <h2>📡 Live Execution Logs</h2>
+                <button id="exportLogsBtn" class="btn btn-tiny">Export</button>
+            </div>
+            <div id="logsContainer" class="logs-container">
+                <div class="log-entry info">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-message">Waiting for execution...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <h2>✅ Exploit Results</h2>
+            <div class="result-box">
+                <div class="result-status" id="resultStatus"></div>
+                <pre id="resultOutput"></pre>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>React2Shell v1.0 | CVE-2025-55182</span>
+            <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-55182" target="_blank">CVE Details</a>
+        </footer>
+    </div>
+
+    <script src="../scripts/popup.js"></script>
+</body>
+
+</html>

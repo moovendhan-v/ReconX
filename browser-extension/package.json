@@ -1,0 +1,21 @@
+{
+    "name": "reconx-cve-scanner",
+    "version": "1.0.0",
+    "description": "Cross-browser CVE scanner extension",
+    "scripts": {
+        "build": "npm run build:chrome",
+        "build:chrome": "npm run zip -- reconx-chrome.zip",
+        "build:firefox": "npm run zip -- reconx-firefox.zip",
+        "build:edge": "npm run zip -- reconx-edge.zip",
+        "zip": "cd .. && zip -r browser-extension/dist/$npm_config_name browser-extension -x '*.git*' -x '*node_modules*' -x '*dist*'",
+        "clean": "rm -rf dist"
+    },
+    "keywords": [
+        "security",
+        "cve",
+        "scanner",
+        "browser-extension"
+    ],
+    "author": "Moovendhan V",
+    "license": "MIT"
+}

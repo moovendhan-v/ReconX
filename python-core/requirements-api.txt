@@ -1,0 +1,8 @@
+# Python Core API Dependencies
+fastapi
+uvicorn
+python-socketio
+python-socketio[asyncio]
+aiohttp
+pydantic
+CYBERTECHMIND-CVE-2025-55182

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Socket.IO Test</title>
+</head>
+
+<body>
+    <h1>Socket.IO Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <button id="emitBtn">Send Test Event</button>
+    <div id="logs"></div>
+
+    <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+    <script>
+        const status = document.getElementById('status');
+        const logs = document.getElementById('logs');
+        const emitBtn = document.getElementById('emitBtn');
+
+        const socket = io('http://localhost:3001', {
+            transports: ['websocket', 'polling']
+        });
+
+        socket.on('connect', () => {
+            status.textContent = 'Connected! ✓';
+            status.style.color = 'green';
+            logs.innerHTML += '<p>Connected to server</p>';
+        });
+
+        socket.on('connect_error', (error) => {
+            status.textContent = 'Connection Error: ' + error.message;
+            status.style.color = 'red';
+            logs.innerHTML += '<p>Error: ' + error.message + '</p>';
+        });
+
+        socket.on('disconnect', () => {
+            status.textContent = 'Disconnected';
+            status.style.color = 'orange';
+        });
+
+        emitBtn.addEventListener('click', () => {
+            socket.emit('test', { message: 'Hello from browser' });
+            logs.innerHTML += '<p>Sent test event</p>';
+        });
+    </script>
+</body>
+
+</html>
