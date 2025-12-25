@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, AlertTriangle, ExternalLink, Calendar, Shield } from 'lucide-react';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EnhancedTable } from '@/components/dashboard/enhanced-table/enhanced-table';
 import type { ColumnDef } from '@/components/dashboard/enhanced-table/table-column-customizer';
 import { useCVEs } from '../hooks/use-cve-graphql';
-import type { CVE } from '../types';
+import type { CVE } from '@/services/graphql/cve.service';
 import { ErrorBoundary } from '../components/error-boundary';
 import { ComponentErrorFallback } from '../components/error-fallback';
 
@@ -176,65 +175,59 @@ export default function CVEList() {
   if (error) {
     return (
       <ErrorBoundary fallback={<ComponentErrorFallback />}>
-        <DashboardLayout title="CVEs" description="Manage and browse Common Vulnerabilities and Exposures">
-          <DashboardShell>
-            <div className="flex flex-col items-center justify-center text-destructive py-12">
-              <AlertTriangle className="w-16 h-16 mb-4" />
-              <p className="text-lg font-medium">Error loading CVEs</p>
-              <p className="text-sm text-muted-foreground">{error.message}</p>
-              <Button onClick={() => refetch()} className="mt-4">
-                Retry
-              </Button>
-            </div>
-          </DashboardShell>
-        </DashboardLayout>
-      </ErrorBoundary>
+        <DashboardShell>
+          <div className="flex flex-col items-center justify-center text-destructive py-12">
+            <AlertTriangle className="w-16 h-16 mb-4" />
+            <p className="text-lg font-medium">Error loading CVEs</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+            <Button onClick={() => refetch()} className="mt-4">
+              Retry
+            </Button>
+          </div>
+        </DashboardShell>      </ErrorBoundary>
     );
   }
 
   return (
     <ErrorBoundary fallback={<ComponentErrorFallback />}>
-      <DashboardLayout title="CVEs" description="Manage and browse Common Vulnerabilities and Exposures">
-        <DashboardShell>
-          {/* Header Actions */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight">CVE Database</h2>
-              <p className="text-muted-foreground">
-                Browse and manage {totalCount} Common Vulnerabilities and Exposures
-              </p>
-            </div>
-            <Button asChild>
-              <Link to="/dashboard/cves/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Add CVE
-              </Link>
-            </Button>
+      <DashboardShell>
+        {/* Header Actions */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">CVE Database</h2>
+            <p className="text-muted-foreground">
+              Browse and manage {totalCount} Common Vulnerabilities and Exposures
+            </p>
           </div>
+          <Button asChild>
+            <Link to="/dashboard/cves/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add CVE
+            </Link>
+          </Button>
+        </div>
 
-          {/* Enhanced CVE Table */}
-          <EnhancedTable
-            data={cves}
-            columns={columns}
-            filterOptions={filterOptions}
-            tableId="cve-list"
-            defaultPageSize={20}
-            defaultSortColumn="publishedDate"
-            defaultSortDirection="desc"
-            onRowClick={handleRowClick}
-            isLoading={loading}
-            showExport={true}
-            exportData={handleExport}
-            emptyState={
-              <div className="flex flex-col items-center justify-center text-muted-foreground py-12">
-                <AlertTriangle className="w-16 h-16 mb-4" />
-                <p className="text-lg font-medium">No CVEs found</p>
-                <p className="text-sm">Try adjusting your search or filters</p>
-              </div>
-            }
-          />
-        </DashboardShell>
-      </DashboardLayout>
-    </ErrorBoundary>
+        {/* Enhanced CVE Table */}
+        <EnhancedTable
+          data={cves}
+          columns={columns}
+          filterOptions={filterOptions}
+          tableId="cve-list"
+          defaultPageSize={20}
+          defaultSortColumn="publishedDate"
+          defaultSortDirection="desc"
+          onRowClick={handleRowClick}
+          isLoading={loading}
+          showExport={true}
+          exportData={handleExport}
+          emptyState={
+            <div className="flex flex-col items-center justify-center text-muted-foreground py-12">
+              <AlertTriangle className="w-16 h-16 mb-4" />
+              <p className="text-lg font-medium">No CVEs found</p>
+              <p className="text-sm">Try adjusting your search or filters</p>
+            </div>
+          }
+        />
+      </DashboardShell>    </ErrorBoundary>
   );
 }

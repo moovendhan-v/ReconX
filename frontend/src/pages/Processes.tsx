@@ -1,12 +1,10 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table } from 'lucide-react'
 
 export default function Processes() {
     return (
-        <DashboardLayout title="Processes" description="Monitor running scan processes">
-            <DashboardShell>
+                    <DashboardShell>
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -23,7 +21,5 @@ export default function Processes() {
                         </div>
                     </CardContent>
                 </Card>
-            </DashboardShell>
-        </DashboardLayout>
-    )
+            </DashboardShell>    )
 }

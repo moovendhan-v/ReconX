@@ -1,0 +1,104 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var NotificationsService_1;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NotificationsService = void 0;
+const common_1 = require("@nestjs/common");
+const redis_service_1 = require("../redis/redis.service");
+let NotificationsService = NotificationsService_1 = class NotificationsService {
+    constructor(redisService) {
+        this.redisService = redisService;
+        this.logger = new common_1.Logger(NotificationsService_1.name);
+    }
+    async publishGlobalNotification(notification) {
+        try {
+            const message = {
+                ...notification,
+                timestamp: notification.timestamp || new Date(),
+            };
+            await this.redisService.getClient().publish('notifications:global', JSON.stringify(message));
+            this.logger.log(`Published global notification: ${notification.title}`);
+        }
+        catch (error) {
+            this.logger.error(`Failed to publish global notification: ${error.message}`);
+            throw error;
+        }
+    }
+    async publishUserNotification(userId, notification) {
+        try {
+            const message = {
+                ...notification,
+                userId,
+                timestamp: notification.timestamp || new Date(),
+            };
+            await this.redisService.getClient().publish(`notifications:user:${userId}`, JSON.stringify(message));
+            this.logger.log(`Published notification to user ${userId}: ${notification.title}`);
+        }
+        catch (error) {
+            this.logger.error(`Failed to publish user notification: ${error.message}`);
+            throw error;
+        }
+    }
+    async publishToChannel(channel, notification) {
+        try {
+            const message = {
+                ...notification,
+                timestamp: notification.timestamp || new Date(),
+            };
+            await this.redisService.getClient().publish(`notifications:${channel}`, JSON.stringify(message));
+            this.logger.log(`Published notification to channel ${channel}: ${notification.title}`);
+        }
+        catch (error) {
+            this.logger.error(`Failed to publish to channel: ${error.message}`);
+            throw error;
+        }
+    }
+    async notifyPOCEvent(event, pocName, userId, metadata) {
+        const notificationMap = {
+            created: {
+                type: 'success',
+                title: 'POC Created',
+                message: `POC "${pocName}" has been created successfully`,
+            },
+            started: {
+                type: 'info',
+                title: 'POC Execution Started',
+                message: `POC "${pocName}" execution has started`,
+            },
+            completed: {
+                type: 'success',
+                title: 'POC Execution Completed',
+                message: `POC "${pocName}" execution completed successfully`,
+            },
+            failed: {
+                type: 'error',
+                title: 'POC Execution Failed',
+                message: `POC "${pocName}" execution failed`,
+            },
+        };
+        const notification = {
+            ...notificationMap[event],
+            metadata,
+        };
+        if (userId) {
+            await this.publishUserNotification(userId, notification);
+        }
+        else {
+            await this.publishGlobalNotification(notification);
+        }
+    }
+};
+exports.NotificationsService = NotificationsService;
+exports.NotificationsService = NotificationsService = NotificationsService_1 = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [redis_service_1.RedisService])
+], NotificationsService);
+//# sourceMappingURL=notifications.service.js.map

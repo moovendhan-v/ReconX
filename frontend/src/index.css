@@ -32,31 +32,58 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
+    --background: 220 20% 4%;
+    --foreground: 210 20% 95%;
+    --card: 220 20% 7%;
+    --card-foreground: 210 20% 95%;
+    --popover: 220 20% 8%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 160 100% 45%;
+    --primary-foreground: 220 20% 4%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 210 20% 90%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 215 15% 55%;
+    --destructive: 0 85% 55%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 15% 18%;
+    --input: 220 15% 15%;
+    --ring: 160 100% 45%;
+
+    --chart-1: 160 100% 45%;
+    --chart-2: 280 100% 65%;
+    --chart-3: 200 85% 55%;
+    --chart-4: 45 95% 55%;
     --chart-5: 340 75% 55%;
+
+    /* Guardian-Eye inspired colors */
+    --accent: 280 100% 65%;
+    --accent-foreground: 210 20% 98%;
+
+    /* Severity Colors */
+    --severity-critical: 0 85% 55%;
+    --severity-high: 25 95% 55%;
+    --severity-medium: 45 95% 55%;
+    --severity-low: 200 85% 55%;
+    --severity-info: 220 70% 55%;
+
+    /* Status Colors */
+    --status-success: 145 70% 45%;
+    --status-warning: 45 95% 55%;
+    --status-error: 0 85% 55%;
+    --status-pending: 200 85% 55%;
+    --status-running: 280 100% 65%;
+
+    /* Glow Effects */
+    --glow-primary: 0 0 12px hsl(160 100% 45% / 0.3);
+    --glow-accent: 0 0 12px hsl(280 100% 65% / 0.3);
+    --glow-critical: 0 0 12px hsl(0 85% 55% / 0.3);
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(160 100% 45%), hsl(180 100% 40%));
+    --gradient-accent: linear-gradient(135deg, hsl(280 100% 65%), hsl(320 100% 60%));
+    --gradient-dark: linear-gradient(180deg, hsl(220 20% 7%), hsl(220 20% 4%));
+    --gradient-card: linear-gradient(135deg, hsl(220 20% 8%), hsl(220 20% 6%));
   }
 }
 
@@ -64,6 +91,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -122,20 +150,97 @@ code {
   font-size: 0.875rem;
 }
 
-/* Glassmorphism effect */
-.glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
+/* Guardian-Eye Inspired Utility Classes */
+@layer components {
+  .glass-panel {
+    background: hsl(var(--card) / 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border) / 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Glass effect for cards */
+  .card-glass {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.4);
+  }
+
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+
+  .glow-critical {
+    box-shadow: var(--glow-critical);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .severity-critical {
+    background: hsl(var(--severity-critical));
+    color: white;
+  }
+
+  .severity-high {
+    background: hsl(var(--severity-high));
+    color: black;
+  }
+
+  .severity-medium {
+    background: hsl(var(--severity-medium));
+    color: black;
+  }
+
+  .severity-low {
+    background: hsl(var(--severity-low));
+    color: black;
+  }
+
+  .severity-info {
+    background: hsl(var(--severity-info));
+    color: white;
+  }
+
+  .status-indicator {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .cyber-grid {
+    background-image:
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
 /* Accessibility Enhancements */
@@ -183,11 +288,11 @@ code {
   .text-muted-foreground {
     color: hsl(var(--foreground));
   }
-  
+
   .border-border {
     border-color: hsl(var(--foreground));
   }
-  
+
   .bg-muted {
     background-color: hsl(var(--background));
     border: 1px solid hsl(var(--foreground));
@@ -196,6 +301,7 @@ code {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -280,6 +386,7 @@ body {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -290,18 +397,18 @@ body {
   .no-print {
     display: none !important;
   }
-  
+
   body {
     background: white !important;
     color: black !important;
   }
-  
+
   .bg-card,
   .bg-background,
   .bg-muted {
     background: white !important;
   }
-  
+
   .text-foreground,
   .text-muted-foreground {
     color: black !important;

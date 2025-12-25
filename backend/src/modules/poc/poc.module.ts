@@ -5,9 +5,10 @@ import { ExecutionService } from './execution.service';
 import { ExecutionLogsGateway } from './execution-logs.gateway';
 import { DatabaseModule } from '../database/database.module';
 import { RedisModule } from '../redis/redis.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [DatabaseModule, RedisModule],
+  imports: [DatabaseModule, RedisModule, NotificationsModule],
   providers: [
     PocService,
     PocResolver,

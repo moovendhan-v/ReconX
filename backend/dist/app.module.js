@@ -17,6 +17,7 @@ const poc_module_1 = require("./modules/poc/poc.module");
 const database_module_1 = require("./modules/database/database.module");
 const redis_module_1 = require("./modules/redis/redis.module");
 const health_module_1 = require("./modules/health/health.module");
+const notifications_module_1 = require("./modules/notifications/notifications.module");
 const scans_module_1 = require("./modules/scans/scans.module");
 const reports_module_1 = require("./modules/reports/reports.module");
 const projects_module_1 = require("./modules/projects/projects.module");
@@ -58,6 +59,7 @@ exports.AppModule = AppModule = __decorate([
             projects_module_1.ProjectsModule,
             activity_module_1.ActivityModule,
             health_module_1.HealthModule,
+            notifications_module_1.NotificationsModule,
         ],
         providers: [datetime_scalar_1.DateTimeScalar],
     })

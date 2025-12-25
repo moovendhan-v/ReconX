@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useMemo, memo } from 'react'
 import {
   BarChart2,
   FileText,
@@ -20,20 +20,14 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { useKeyboardNavigation } from '@/hooks/use-keyboard-navigation'
-import { useScreenReader } from '@/hooks/use-screen-reader'
 import { generateAriaLabel } from '@/lib/accessibility'
 
-export function DashboardSidebar() {
+export const DashboardSidebar = memo(function DashboardSidebar() {
   const location = useLocation()
-  const [activeRoute, setActiveRoute] = useState(location.pathname)
-  const [focusedIndex, setFocusedIndex] = useState(-1)
-  const { announce } = useScreenReader()
 
-  // Update active route when pathname changes
-  useEffect(() => {
-    setActiveRoute(location.pathname)
-  }, [location.pathname])
+  // Memoize active route to prevent recalculations
+  const activeRoute = useMemo(() => location.pathname, [location.pathname])
+
 
   const mainRoutes = [
     {
@@ -109,33 +103,17 @@ export function DashboardSidebar() {
     },
   ]
 
-  // Combine all routes for keyboard navigation
-  const allRoutes = [...mainRoutes, ...analyticsRoutes, ...settingsRoutes]
-
-  // Keyboard navigation
-  useKeyboardNavigation({
-    onArrowDown: () => {
-      setFocusedIndex((prev) => (prev + 1) % allRoutes.length)
-    },
-    onArrowUp: () => {
-      setFocusedIndex((prev) => (prev - 1 + allRoutes.length) % allRoutes.length)
-    },
-    onEnter: () => {
-      if (focusedIndex >= 0 && focusedIndex < allRoutes.length) {
-        const route = allRoutes[focusedIndex]
-        announce(`Navigating to ${route.title}`)
-      }
-    },
-  })
-
   return (
     <nav
-      className="flex h-screen w-64 flex-col bg-card border-r border-border shadow-lg"
+      className="flex h-screen w-64 flex-col glass-panel backdrop-blur-xl bg-card/40 border-r border-border/50 shadow-2xl relative overflow-hidden"
       role="navigation"
       aria-label="Main navigation"
       id="navigation"
     >
-      <div className="flex h-14 items-center border-b border-border px-4 bg-gradient-to-r from-card to-muted/20">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 cyber-grid opacity-5 pointer-events-none" />
+
+      <div className="flex h-14 items-center border-b border-border/50 px-4 bg-gradient-to-r from-card/50 to-transparent backdrop-blur-sm relative z-10">
         <Link
           to="/dashboard"
           className="flex items-center gap-2 font-semibold group"
@@ -183,20 +161,20 @@ export function DashboardSidebar() {
                   variant="ghost"
                   asChild
                   className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 group animate-fade-in justify-start h-auto',
+                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 group animate-fade-in justify-start h-auto relative',
                     isActive
-                      ? 'bg-accent text-primary shadow-sm border border-primary/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+                      ? 'bg-primary/10 text-primary shadow-md border-l-4 border-l-primary glow-primary'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:border-l-2 hover:border-l-primary/50 hover:shadow-sm',
                   )}
                 >
-                  <Link to={route.href}>
+                  <Link to={route.href} className="flex items-center gap-3 w-full">
                     <route.icon
                       className={cn(
-                        'h-4 w-4 transition-transform group-hover:scale-110',
-                        isActive ? 'text-primary' : '',
+                        'h-4 w-4 transition-all group-hover:scale-125 group-hover:rotate-12',
+                        isActive ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]' : '',
                       )}
                     />
-                    {route.title}
+                    <span className={cn(isActive && 'font-semibold')}>{route.title}</span>
                   </Link>
                 </Button>
               );
@@ -214,20 +192,20 @@ export function DashboardSidebar() {
                 variant="ghost"
                 asChild
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 group animate-fade-in justify-start h-auto',
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 group animate-fade-in justify-start h-auto relative',
                   activeRoute === route.href || activeRoute.startsWith(`${route.href}/`)
-                    ? 'bg-accent text-primary shadow-sm border border-primary/20'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+                    ? 'bg-primary/10 text-primary shadow-md border-l-4 border-l-primary glow-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:border-l-2 hover:border-l-primary/50 hover:shadow-sm',
                 )}
               >
-                <Link to={route.href}>
+                <Link to={route.href} className="flex items-center gap-3 w-full">
                   <route.icon
                     className={cn(
-                      'h-4 w-4 transition-transform group-hover:scale-110',
-                      activeRoute === route.href || activeRoute.startsWith(`${route.href}/`) ? 'text-primary' : '',
+                      'h-4 w-4 transition-all group-hover:scale-125 group-hover:rotate-12',
+                      activeRoute === route.href || activeRoute.startsWith(`${route.href}/`) ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]' : '',
                     )}
                   />
-                  {route.title}
+                  <span className={cn((activeRoute === route.href || activeRoute.startsWith(`${route.href}/`)) && 'font-semibold')}>{route.title}</span>
                 </Link>
               </Button>
             ))}
@@ -244,20 +222,20 @@ export function DashboardSidebar() {
                 variant="ghost"
                 asChild
                 className={cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 group animate-fade-in justify-start h-auto',
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-300 group animate-fade-in justify-start h-auto relative',
                   activeRoute === route.href || activeRoute.startsWith(`${route.href}/`)
-                    ? 'bg-accent text-primary shadow-sm border border-primary/20'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
+                    ? 'bg-primary/10 text-primary shadow-md border-l-4 border-l-primary glow-primary'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 hover:border-l-2 hover:border-l-primary/50 hover:shadow-sm',
                 )}
               >
-                <Link to={route.href}>
+                <Link to={route.href} className="flex items-center gap-3 w-full">
                   <route.icon
                     className={cn(
-                      'h-4 w-4 transition-transform group-hover:scale-110',
-                      activeRoute === route.href || activeRoute.startsWith(`${route.href}/`) ? 'text-primary' : '',
+                      'h-4 w-4 transition-all group-hover:scale-125 group-hover:rotate-12',
+                      activeRoute === route.href || activeRoute.startsWith(`${route.href}/`) ? 'text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]' : '',
                     )}
                   />
-                  {route.title}
+                  <span className={cn((activeRoute === route.href || activeRoute.startsWith(`${route.href}/`)) && 'font-semibold')}>{route.title}</span>
                 </Link>
               </Button>
             ))}
@@ -281,4 +259,4 @@ export function DashboardSidebar() {
       </div>
     </nav>
   )
-}
+})

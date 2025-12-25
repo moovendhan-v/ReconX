@@ -1,12 +1,10 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users } from 'lucide-react'
 
 export default function Team() {
     return (
-        <DashboardLayout title="Team" description="Manage team members">
-            <DashboardShell>
+                    <DashboardShell>
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -23,7 +21,5 @@ export default function Team() {
                         </div>
                     </CardContent>
                 </Card>
-            </DashboardShell>
-        </DashboardLayout>
-    )
+            </DashboardShell>    )
 }

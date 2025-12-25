@@ -1,12 +1,10 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Settings as SettingsIcon } from 'lucide-react'
 
 export default function Settings() {
     return (
-        <DashboardLayout title="Settings" description="Configure application settings">
-            <DashboardShell>
+                    <DashboardShell>
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -23,7 +21,5 @@ export default function Settings() {
                         </div>
                     </CardContent>
                 </Card>
-            </DashboardShell>
-        </DashboardLayout>
-    )
+            </DashboardShell>    )
 }

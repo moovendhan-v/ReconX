@@ -1,10 +1,12 @@
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { POC, CreatePOCInput, UpdatePOCInput, POCFiltersInput, POCListResponse, ExecutionLog } from './dto/poc.dto';
 export declare class PocService {
     private readonly databaseService;
     private readonly redisService;
-    constructor(databaseService: DatabaseService, redisService: RedisService);
+    private readonly notificationsService;
+    constructor(databaseService: DatabaseService, redisService: RedisService, notificationsService: NotificationsService);
     findAll(userId: string, filters?: POCFiltersInput): Promise<POCListResponse>;
     findOne(id: string, userId: string): Promise<POC>;
     findWithLogs(id: string, userId: string): Promise<POC>;

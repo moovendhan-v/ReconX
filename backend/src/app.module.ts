@@ -9,6 +9,7 @@ import { PocModule } from './modules/poc/poc.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { HealthModule } from './modules/health/health.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ScansModule } from './modules/scans/scans.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ProjectsModule } from './modules/projects/projects.module';
@@ -47,6 +48,7 @@ import { DateTimeScalar } from './common/scalars/datetime.scalar';
     ProjectsModule,
     ActivityModule,
     HealthModule,
+    NotificationsModule,
   ],
   providers: [DateTimeScalar],
 })

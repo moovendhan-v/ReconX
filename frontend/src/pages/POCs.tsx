@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -145,8 +144,7 @@ ${log.output || 'No output'}
   }
 
   return (
-    <DashboardLayout title="POCs" description="Manage and execute Proof of Concept scripts">
-      <DashboardShell>
+          <DashboardShell>
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertTriangle className="h-4 w-4" />
@@ -315,7 +313,5 @@ ${log.output || 'No output'}
             )}
           </div>
         </div>
-      </DashboardShell>
-    </DashboardLayout>
-  )
+      </DashboardShell>  )
 }

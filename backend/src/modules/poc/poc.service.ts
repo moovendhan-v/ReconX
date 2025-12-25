@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { eq, desc, and, or, like, count } from 'drizzle-orm';
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { pocs, cves, executionLogs } from '../../db/schema';
 import {
   POC,
@@ -17,6 +18,7 @@ export class PocService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly redisService: RedisService,
+    private readonly notificationsService: NotificationsService,
   ) { }
 
   async findAll(userId: string, filters: POCFiltersInput = {}): Promise<POCListResponse> {
@@ -175,7 +177,17 @@ export class PocService {
       })
       .returning();
 
-    return this.mapPOCFromDb(result);
+    const poc = this.mapPOCFromDb(result);
+
+    // Send real-time notification
+    await this.notificationsService.notifyPOCEvent(
+      'created',
+      poc.name,
+      userId,
+      { pocId: poc.id, cveId: poc.cveId }
+    );
+
+    return poc;
   }
 
   async update(id: string, input: UpdatePOCInput, userId: string): Promise<POC> {

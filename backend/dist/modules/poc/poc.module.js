@@ -14,12 +14,13 @@ const execution_service_1 = require("./execution.service");
 const execution_logs_gateway_1 = require("./execution-logs.gateway");
 const database_module_1 = require("../database/database.module");
 const redis_module_1 = require("../redis/redis.module");
+const notifications_module_1 = require("../notifications/notifications.module");
 let PocModule = class PocModule {
 };
 exports.PocModule = PocModule;
 exports.PocModule = PocModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule, redis_module_1.RedisModule],
+        imports: [database_module_1.DatabaseModule, redis_module_1.RedisModule, notifications_module_1.NotificationsModule],
         providers: [
             poc_service_1.PocService,
             poc_resolver_1.PocResolver,

@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -53,8 +52,7 @@ export default function Analytics() {
 
   if (hasError && !metrics) {
     return (
-      <DashboardLayout title="Analytics" description="View reconnaissance analytics and metrics">
-        <DashboardShell>
+              <DashboardShell>
           <Card>
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -70,14 +68,11 @@ export default function Analytics() {
               </div>
             </CardContent>
           </Card>
-        </DashboardShell>
-      </DashboardLayout>
-    )
+        </DashboardShell>    )
   }
 
   return (
-    <DashboardLayout title="Analytics" description="View reconnaissance analytics and metrics">
-      <DashboardShell>
+          <DashboardShell>
         {/* Header with controls */}
         <div className="flex items-center justify-between">
           <div>
@@ -264,7 +259,5 @@ export default function Analytics() {
             ))}
           </div>
         )}
-      </DashboardShell>
-    </DashboardLayout>
-  )
+      </DashboardShell>  )
 }

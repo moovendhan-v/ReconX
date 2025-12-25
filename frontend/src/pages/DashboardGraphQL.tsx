@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -46,8 +45,7 @@ export default function DashboardGraphQL() {
 
   if (error) {
     return (
-      <DashboardLayout title="Dashboard" description="Welcome to your ReconX GraphQL dashboard">
-        <DashboardShell>
+              <DashboardShell>
           <Card>
             <CardContent className="flex items-center justify-center py-8">
               <div className="text-center">
@@ -61,14 +59,11 @@ export default function DashboardGraphQL() {
               </div>
             </CardContent>
           </Card>
-        </DashboardShell>
-      </DashboardLayout>
-    )
+        </DashboardShell>    )
   }
 
   return (
-    <DashboardLayout title="Dashboard" description="Welcome to your ReconX GraphQL dashboard">
-      <DashboardShell>
+          <DashboardShell>
         {/* Header with refresh controls */}
         <div className="flex items-center justify-between">
           <div>
@@ -221,7 +216,5 @@ export default function DashboardGraphQL() {
 
 
         {/* Content loads without skeleton */}
-      </DashboardShell>
-    </DashboardLayout>
-  )
+      </DashboardShell>  )
 }

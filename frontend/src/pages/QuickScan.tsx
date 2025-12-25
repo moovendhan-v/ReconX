@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,8 +7,7 @@ import { Zap } from 'lucide-react'
 
 export default function QuickScan() {
     return (
-        <DashboardLayout title="Quick Scan" description="Launch a quick vulnerability scan">
-            <DashboardShell>
+                    <DashboardShell>
                 <div className="max-w-2xl mx-auto">
                     <Card>
                         <CardHeader>
@@ -33,7 +31,5 @@ export default function QuickScan() {
                         </CardContent>
                     </Card>
                 </div>
-            </DashboardShell>
-        </DashboardLayout>
-    )
+            </DashboardShell>    )
 }

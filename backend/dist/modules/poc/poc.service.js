@@ -14,11 +14,13 @@ const common_1 = require("@nestjs/common");
 const drizzle_orm_1 = require("drizzle-orm");
 const database_service_1 = require("../database/database.service");
 const redis_service_1 = require("../redis/redis.service");
+const notifications_service_1 = require("../notifications/notifications.service");
 const schema_1 = require("../../db/schema");
 let PocService = class PocService {
-    constructor(databaseService, redisService) {
+    constructor(databaseService, redisService, notificationsService) {
         this.databaseService = databaseService;
         this.redisService = redisService;
+        this.notificationsService = notificationsService;
     }
     async findAll(userId, filters = {}) {
         const db = this.databaseService.getDb();
@@ -130,7 +132,9 @@ let PocService = class PocService {
             author: input.author,
         })
             .returning();
-        return this.mapPOCFromDb(result);
+        const poc = this.mapPOCFromDb(result);
+        await this.notificationsService.notifyPOCEvent('created', poc.name, userId, { pocId: poc.id, cveId: poc.cveId });
+        return poc;
     }
     async update(id, input, userId) {
         const db = this.databaseService.getDb();
@@ -198,6 +202,7 @@ exports.PocService = PocService;
 exports.PocService = PocService = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [database_service_1.DatabaseService,
-        redis_service_1.RedisService])
+        redis_service_1.RedisService,
+        notifications_service_1.NotificationsService])
 ], PocService);
 //# sourceMappingURL=poc.service.js.map

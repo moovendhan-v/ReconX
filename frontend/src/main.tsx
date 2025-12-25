@@ -9,6 +9,7 @@ import { FocusIndicator } from './components/accessibility/focus-indicator';
 import { LazyWrapper } from './components/lazy-loading/lazy-wrapper';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { DashboardLayoutWrapper } from './components/dashboard/dashboard-layout-wrapper';
 import { apolloClient } from './lib/apollo-client';
 import './index.css';
 
@@ -67,177 +68,33 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                   {/* Redirect root to dashboard or login */}
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-                  {/* Protected dashboard routes with lazy loading */}
+                  {/* Protected dashboard routes with persistent layout */}
                   <Route
                     path="/dashboard"
                     element={
                       <ProtectedRoute>
-                        <LazyWrapper>
-                          <Dashboard />
-                        </LazyWrapper>
+                        <DashboardLayoutWrapper />
                       </ProtectedRoute>
                     }
-                  />
-                  <Route
-                    path="/dashboard/graphql"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <DashboardGraphQL />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/cves"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <CVEList />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/cves-graphql"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <CVEListGraphQL />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/cves/:id"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <CVEDetail />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/pocs"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <POCs />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/pocs/new"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <CreatePOC />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/scans"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Scans />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/quick-scan"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <QuickScan />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/reports"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Reports />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/processes"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Processes />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/projects"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Projects />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/activity"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Activity />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/analytics"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Analytics />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/settings"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Settings />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/team"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Team />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/help"
-                    element={
-                      <ProtectedRoute>
-                        <LazyWrapper>
-                          <Help />
-                        </LazyWrapper>
-                      </ProtectedRoute>
-                    }
-                  />
+                  >
+                    {/* Nested routes - content will render in <Outlet /> */}
+                    <Route index element={<LazyWrapper><Dashboard /></LazyWrapper>} />
+                    <Route path="graphql" element={<LazyWrapper><DashboardGraphQL /></LazyWrapper>} />
+                    <Route path="cves" element={<LazyWrapper><CVEListGraphQL /></LazyWrapper>} />
+                    <Route path="cves/:id" element={<LazyWrapper><CVEDetail /></LazyWrapper>} />
+                    <Route path="pocs" element={<LazyWrapper><POCs /></LazyWrapper>} />
+                    <Route path="pocs/new" element={<LazyWrapper><CreatePOC /></LazyWrapper>} />
+                    <Route path="scans" element={<LazyWrapper><Scans /></LazyWrapper>} />
+                    <Route path="quick-scan" element={<LazyWrapper><QuickScan /></LazyWrapper>} />
+                    <Route path="reports" element={<LazyWrapper><Reports /></LazyWrapper>} />
+                    <Route path="processes" element={<LazyWrapper><Processes /></LazyWrapper>} />
+                    <Route path="projects" element={<LazyWrapper><Projects /></LazyWrapper>} />
+                    <Route path="activity" element={<LazyWrapper><Activity /></LazyWrapper>} />
+                    <Route path="analytics" element={<LazyWrapper><Analytics /></LazyWrapper>} />
+                    <Route path="settings" element={<LazyWrapper><Settings /></LazyWrapper>} />
+                    <Route path="team" element={<LazyWrapper><Team /></LazyWrapper>} />
+                    <Route path="help" element={<LazyWrapper><Help /></LazyWrapper>} />
+                  </Route>
 
                   {/* Legacy routes for backward compatibility */}
                   <Route path="/cves" element={<Navigate to="/dashboard/cves" replace />} />

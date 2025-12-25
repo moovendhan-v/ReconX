@@ -1,4 +1,3 @@
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -7,8 +6,7 @@ import { Search, Play, Plus } from 'lucide-react'
 
 export default function Scans() {
     return (
-        <DashboardLayout title="Scans" description="View and manage vulnerability scans">
-            <DashboardShell>
+                    <DashboardShell>
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold">Scan History</h1>
                     <Button>
@@ -33,7 +31,5 @@ export default function Scans() {
                         </div>
                     </CardContent>
                 </Card>
-            </DashboardShell>
-        </DashboardLayout>
-    )
+            </DashboardShell>    )
 }

@@ -16,7 +16,6 @@ import {
   Terminal,
   Download
 } from 'lucide-react';
-import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { DashboardShell } from '@/components/dashboard/dashboard-shell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,32 +113,25 @@ export default function CVEDetail() {
 
   if (loading) {
     return (
-      <DashboardLayout title="Loading CVE...">
-        <DashboardShell>
+              <DashboardShell>
           <div className="flex items-center justify-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             <p className="ml-4 text-muted-foreground">Loading CVE details...</p>
           </div>
-        </DashboardShell>
-      </DashboardLayout>
-    );
+        </DashboardShell>    );
   }
 
   if (!cve) {
     return (
-      <DashboardLayout title="CVE Not Found">
-        <DashboardShell>
+              <DashboardShell>
           <div className="text-center py-12">
             <p className="text-muted-foreground">CVE not found</p>
           </div>
-        </DashboardShell>
-      </DashboardLayout>
-    );
+        </DashboardShell>    );
   }
 
   return (
-    <DashboardLayout title={cve.cveId} description={cve.title}>
-      <DashboardShell>
+          <DashboardShell>
         {/* Back Navigation */}
         <Button variant="ghost" asChild className="w-fit mb-6">
           <Link to="/dashboard/cves">
@@ -489,7 +481,5 @@ export default function CVEDetail() {
             )}
           </TabsContent>
         </Tabs>
-      </DashboardShell>
-    </DashboardLayout>
-  );
+      </DashboardShell>  );
 }
