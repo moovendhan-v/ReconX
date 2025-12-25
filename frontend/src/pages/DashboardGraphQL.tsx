@@ -13,16 +13,16 @@ import { useNavigate } from 'react-router-dom'
 
 export default function DashboardGraphQL() {
   const navigate = useNavigate()
-  const { 
-    metrics, 
-    severityDistribution, 
-    trendData, 
-    recentActivity, 
-    loading, 
-    error, 
+  const {
+    metrics,
+    severityDistribution,
+    trendData,
+    recentActivity,
+    loading,
+    error,
     refreshData,
     isStale,
-    lastUpdated 
+    lastUpdated
   } = useAnalyticsGraphQL()
 
   const handleQuickAction = (action: string) => {
@@ -91,9 +91,9 @@ export default function DashboardGraphQL() {
                 Updated {lastUpdated.toLocaleTimeString()}
               </span>
             )}
-            <Button 
-              onClick={refreshData} 
-              variant="outline" 
+            <Button
+              onClick={refreshData}
+              variant="outline"
               size="sm"
               disabled={loading}
             >
@@ -105,7 +105,7 @@ export default function DashboardGraphQL() {
 
         {/* Metrics Overview */}
         {metrics && (
-          <MetricsOverview 
+          <MetricsOverview
             metrics={metrics}
             trends={{
               cves: { value: 12.5, direction: 'up' },
@@ -124,7 +124,7 @@ export default function DashboardGraphQL() {
 
           {/* Trend Chart */}
           {trendData.length > 0 && (
-            <TrendChart 
+            <TrendChart
               data={trendData}
               title="30-Day Activity Trends"
               description="CVE discoveries, POC uploads, and execution activity"
@@ -148,32 +148,32 @@ export default function DashboardGraphQL() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => handleQuickAction('scan')}
               >
                 <Search className="h-4 w-4 mr-2" />
                 Start New Scan
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => handleQuickAction('poc')}
               >
                 <Terminal className="h-4 w-4 mr-2" />
                 Execute POC
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => handleQuickAction('report')}
               >
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Report
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
                 onClick={() => handleQuickAction('cves')}
               >
@@ -219,22 +219,8 @@ export default function DashboardGraphQL() {
           </CardContent>
         </Card>
 
-        {/* Loading State */}
-        {loading && !metrics && (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i}>
-                <CardContent className="p-6">
-                  <div className="animate-pulse">
-                    <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                    <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
-                    <div className="h-3 bg-muted rounded w-full"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+
+        {/* Content loads without skeleton */}
       </DashboardShell>
     </DashboardLayout>
   )
