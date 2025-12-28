@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { eq, and, like, desc } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../../db/schema';
@@ -10,12 +9,25 @@ import {
     ScanListResponse,
     Scan as ScanDTO,
 } from './dto/scan.dto';
+import { SubdomainResult, PortResult } from '../../db/schema';
+import { ScanEventsService } from './scan-events.service';
 
 @Injectable()
 export class ScansService {
     constructor(
         @Inject('DATABASE') private db: NodePgDatabase<typeof schema>,
+        private readonly scanEventsService: ScanEventsService,
     ) { }
+
+    /**
+     * Transform database scan record to DTO (converts progress string to number)
+     */
+    private transformScanToDTO(scan: any): ScanDTO {
+        return {
+            ...scan,
+            progress: scan.progress ? parseFloat(scan.progress) : undefined,
+        };
+    }
 
     async findAll(filters: ScanFiltersInput = {}): Promise<ScanListResponse> {
         const { search, status, type, limit = 20, offset = 0 } = filters;
@@ -66,7 +78,7 @@ export class ScansService {
         const totalScans = await countQuery;
         const total = totalScans.length;
 
-        return { scans: scans as ScanDTO[], total };
+        return { scans: scans.map(s => this.transformScanToDTO(s)), total };
     }
 
     async findById(id: string): Promise<ScanDTO | null> {
@@ -75,7 +87,7 @@ export class ScansService {
             .from(schema.scans)
             .where(eq(schema.scans.id, id));
 
-        return scan as ScanDTO || null;
+        return scan ? this.transformScanToDTO(scan) : null;
     }
 
     async create(input: CreateScanInput): Promise<ScanDTO> {
@@ -89,7 +101,7 @@ export class ScansService {
             })
             .returning();
 
-        return scan as ScanDTO;
+        return this.transformScanToDTO(scan);
     }
 
     async update(id: string, input: UpdateScanInput): Promise<ScanDTO> {
@@ -106,7 +118,7 @@ export class ScansService {
             throw new Error(`Scan with ID ${id} not found`);
         }
 
-        return scan as ScanDTO;
+        return this.transformScanToDTO(scan);
     }
 
     async delete(id: string): Promise<boolean> {
@@ -123,4 +135,129 @@ export class ScansService {
             status: 'RUNNING' as any,
         });
     }
+
+    /**
+     * Start a quick scan - creates scan job and publishes event
+     */
+    async startQuickScan(target: string): Promise<ScanDTO> {
+        const scan = await this.create({
+            name: `Quick Scan - ${target}`,
+            target,
+            type: 'QUICK' as any,
+        });
+
+        // Publish scan created event
+        await this.scanEventsService.scanCreated(scan.id, target);
+
+        return scan;
+    }
+
+    /**
+     * Update scan progress
+     */
+    async updateProgress(id: string, progress: number): Promise<void> {
+        await this.db
+            .update(schema.scans)
+            .set({
+                progress: progress.toString(),
+                updatedAt: new Date(),
+            })
+            .where(eq(schema.scans.id, id));
+
+        // Publish progress event
+        await this.scanEventsService.scanProgress(id, progress);
+    }
+
+    /**
+     * Add a subdomain result to the scan
+     */
+    async addSubdomainResult(id: string, subdomain: SubdomainResult): Promise<void> {
+        const scan = await this.findById(id);
+        if (!scan) throw new Error(`Scan ${id} not found`);
+
+        const subdomains = scan.subdomains || [];
+        subdomains.push(subdomain);
+
+        await this.db
+            .update(schema.scans)
+            .set({
+                subdomains: subdomains as any,
+                updatedAt: new Date(),
+            })
+            .where(eq(schema.scans.id, id));
+
+        // Publish subdomain found event
+        await this.scanEventsService.subdomainFound(id, subdomain);
+    }
+
+    /**
+     * Add a port result to the scan
+     */
+    async addPortResult(id: string, port: PortResult): Promise<void> {
+        const scan = await this.findById(id);
+        if (!scan) throw new Error(`Scan ${id} not found`);
+
+        const openPorts = scan.openPorts || [];
+        openPorts.push(port);
+
+        await this.db
+            .update(schema.scans)
+            .set({
+                openPorts: openPorts as any,
+                updatedAt: new Date(),
+            })
+            .where(eq(schema.scans.id, id));
+
+        // Publish port found event
+        await this.scanEventsService.portFound(id, port);
+    }
+
+    /**
+     * Mark scan as completed
+     */
+    async completeScan(id: string): Promise<ScanDTO> {
+        const scan = await this.update(id, {
+            status: 'COMPLETED' as any,
+        });
+
+        const [updated] = await this.db
+            .update(schema.scans)
+            .set({
+                completedAt: new Date(),
+                progress: '100',
+                updatedAt: new Date(),
+            })
+            .where(eq(schema.scans.id, id))
+            .returning();
+
+        // Publish completed event
+        await this.scanEventsService.scanCompleted(id, {
+            subdomains: updated.subdomains,
+            openPorts: updated.openPorts,
+        });
+
+        return this.transformScanToDTO(updated);
+    }
+
+    /**
+     * Mark scan as failed
+     */
+    async failScan(id: string, error: string): Promise<ScanDTO> {
+        const [scan] = await this.db
+            .update(schema.scans)
+            .set({
+                status: 'FAILED',
+                error,
+                completedAt: new Date(),
+                updatedAt: new Date(),
+            })
+            .where(eq(schema.scans.id, id))
+            .returning();
+
+        // Publish failed event
+        await this.scanEventsService.scanFailed(id, error);
+
+        return this.transformScanToDTO(scan);
+    }
 }
+

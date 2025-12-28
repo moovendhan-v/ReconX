@@ -1,5 +1,5 @@
-import { Field, InputType, ObjectType, Int, registerEnumType } from '@nestjs/graphql';
-import { IsString, IsOptional, IsEnum, IsUUID, IsInt, Min } from 'class-validator';
+import { Field, InputType, ObjectType, Int, Float, registerEnumType } from '@nestjs/graphql';
+import { IsString, IsOptional, IsEnum, IsUUID, IsInt, Min, IsNumber } from 'class-validator';
 import GraphQLJSON from 'graphql-type-json';
 
 export enum ScanType {
@@ -15,8 +15,45 @@ export enum ScanStatus {
     FAILED = 'FAILED',
 }
 
+export enum PortState {
+    OPEN = 'open',
+    CLOSED = 'closed',
+    FILTERED = 'filtered',
+}
+
 registerEnumType(ScanType, { name: 'ScanType' });
 registerEnumType(ScanStatus, { name: 'ScanStatus' });
+registerEnumType(PortState, { name: 'PortState' });
+
+@ObjectType()
+export class SubdomainResult {
+    @Field()
+    subdomain: string;
+
+    @Field(() => [String])
+    ip: string[];
+
+    @Field()
+    discovered_at: string;
+}
+
+@ObjectType()
+export class PortResult {
+    @Field()
+    subdomain: string;
+
+    @Field(() => Int)
+    port: number;
+
+    @Field()
+    service: string;
+
+    @Field(() => PortState)
+    state: PortState;
+
+    @Field()
+    discovered_at: string;
+}
 
 @ObjectType()
 export class Scan {
@@ -35,8 +72,20 @@ export class Scan {
     @Field(() => ScanStatus)
     status: ScanStatus;
 
+    @Field(() => Float, { nullable: true })
+    progress?: number;
+
     @Field(() => GraphQLJSON, { nullable: true })
     results?: any;
+
+    @Field(() => [SubdomainResult], { nullable: true })
+    subdomains?: SubdomainResult[];
+
+    @Field(() => [PortResult], { nullable: true })
+    openPorts?: PortResult[];
+
+    @Field({ nullable: true })
+    error?: string;
 
     @Field(() => Date, { nullable: true })
     startedAt?: Date;

@@ -1,0 +1,95 @@
+version: '3.8'
+
+services:
+  pentest-environment:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pentest-kali
+    hostname: pentest-kali
+    stdin_open: true
+    tty: true
+    privileged: true
+    network_mode: host
+    volumes:
+      # Mount local directories for persistence
+      - ./tools:/root/tools
+      - ./wordlists:/root/wordlists
+      - ./output:/root/output
+      - ./scripts:/root/scripts
+      - ./reports:/root/reports
+      - ./exploits:/root/exploits
+      # Share configuration files
+      - ./config:/root/.config
+    environment:
+      - DISPLAY=${DISPLAY}
+      - TERM=xterm-256color
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    restart: unless-stopped
+    
+  # Optional: PostgreSQL for Metasploit database
+  postgres-metasploit:
+    image: postgres:14-alpine
+    container_name: pentest-postgres
+    environment:
+      POSTGRES_DB: msf_database
+      POSTGRES_USER: msf_user
+      POSTGRES_PASSWORD: msf_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+      - "5900:5901"  # VNC Server
+      - "6080:6080"  # noVNC Web Interface
+      - "8080:8080"  # ZAP Proxy
+      - "8081:8081"  # Burp Suite
+      - "3000:3000"  # BeEF
+    restart: unless-stopped
+
+  # Optional: Neo4j for BloodHound
+  neo4j-bloodhound:
+    image: neo4j:4.4
+    container_name: pentest-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/bloodhound
+      NEO4J_dbms_active__database: graph.db
+      NEO4J_dbms_memory_heap_max__size: 2G
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: unless-stopped
+
+  # Optional: Web interface for better management
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: pentest-portainer
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer-data:/data
+    ports:
+      - "9000:9000"
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  neo4j-data:
+    driver: local
+  neo4j-logs:
+    driver: local
+  portainer-data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

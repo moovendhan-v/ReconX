@@ -23,6 +23,7 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const POCs = lazy(() => import('./pages/POCs'));
 const CreatePOC = lazy(() => import('./pages/CreatePOC'));
 const Scans = lazy(() => import('./pages/Scans'));
+const ScanDetail = lazy(() => import('./pages/ScanDetail'));
 const QuickScan = lazy(() => import('./pages/QuickScan'));
 const Reports = lazy(() => import('./pages/Reports'));
 const Processes = lazy(() => import('./pages/Processes'));
@@ -85,6 +86,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                     <Route path="pocs" element={<LazyWrapper><POCs /></LazyWrapper>} />
                     <Route path="pocs/new" element={<LazyWrapper><CreatePOC /></LazyWrapper>} />
                     <Route path="scans" element={<LazyWrapper><Scans /></LazyWrapper>} />
+                    <Route path="scans/:id" element={<LazyWrapper><ScanDetail /></LazyWrapper>} />
                     <Route path="quick-scan" element={<LazyWrapper><QuickScan /></LazyWrapper>} />
                     <Route path="reports" element={<LazyWrapper><Reports /></LazyWrapper>} />
                     <Route path="processes" element={<LazyWrapper><Processes /></LazyWrapper>} />

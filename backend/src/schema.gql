@@ -187,6 +187,7 @@ type Mutation {
   executePoc(input: ExecutePOCInput!, pocId: String!): ExecuteResponse!
   login(input: LoginInput!): AuthResponse!
   signup(input: SignupInput!): AuthResponse!
+  startQuickScan(target: String!): Scan!
   startScan(id: String!): Scan!
   updateCve(id: ID!, input: UpdateCVEInput!): CVE!
   updatePoc(id: ID!, input: UpdatePOCInput!): POC!
@@ -221,6 +222,20 @@ input POCFiltersInput {
 type POCListResponse {
   pocs: [POC!]!
   total: Int!
+}
+
+type PortResult {
+  discovered_at: String!
+  port: Int!
+  service: String!
+  state: PortState!
+  subdomain: String!
+}
+
+enum PortState {
+  CLOSED
+  FILTERED
+  OPEN
 }
 
 type Project {
@@ -298,11 +313,15 @@ enum ReportType {
 type Scan {
   completedAt: DateTime
   createdAt: DateTime!
+  error: String
   id: String!
   name: String!
+  openPorts: [PortResult!]
+  progress: Float
   results: JSON
   startedAt: DateTime
   status: ScanStatus!
+  subdomains: [SubdomainResult!]
   target: String!
   type: ScanType!
   updatedAt: DateTime!
@@ -346,6 +365,12 @@ input SignupInput {
   email: String!
   name: String
   password: String!
+}
+
+type SubdomainResult {
+  discovered_at: String!
+  ip: [String!]!
+  subdomain: String!
 }
 
 input UpdateCVEInput {

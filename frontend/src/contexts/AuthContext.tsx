@@ -10,6 +10,10 @@ interface User {
     createdAt: Date;
 }
 
+interface MeQueryResult {
+    me: User;
+}
+
 interface AuthContextType {
     user: User | null;
     token: string | null;
@@ -31,19 +35,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [signupMutation] = useMutation(SIGNUP_MUTATION);
 
     // Query for current user if token exists
-    const { loading: meLoading, data: meData, error: meError } = useQuery(ME_QUERY, {
+    const { loading: meLoading, data: meData, error: meError } = useQuery<MeQueryResult>(ME_QUERY, {
         skip: !token,
         fetchPolicy: 'network-only', // Always fetch fresh data on reload
-        onCompleted: (data: any) => {
-            setUser(data.me);
-        },
-        onError: () => {
+    });
+
+    // Handle query completion and errors
+    useEffect(() => {
+        if (meData?.me) {
+            // Query succeeded, set user
+            setUser(meData.me);
+        }
+    }, [meData]);
+
+    useEffect(() => {
+        if (meError) {
             // Token is invalid, clear it
             localStorage.removeItem('auth-token');
             setToken(null);
             setUser(null);
-        },
-    });
+        }
+    }, [meError]);
 
     // Manage loading state based on token and query state
     useEffect(() => {
@@ -63,6 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     input: { email, password },
                 },
             });
+
+            // Defensive check: ensure data and data.login exist
+            if (!data || !data.login) {
+                throw new Error('Login mutation returned no data');
+            }
 
             const { token: newToken, user: newUser } = data.login;
             localStorage.setItem('auth-token', newToken);
@@ -85,6 +102,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     input: { email, password, name },
                 },
             });
+
+            // Defensive check: ensure data and data.signup exist
+            if (!data || !data.signup) {
+                throw new Error('Signup mutation returned no data');
+            }
 
             const { token: newToken, user: newUser } = data.signup;
             localStorage.setItem('auth-token', newToken);

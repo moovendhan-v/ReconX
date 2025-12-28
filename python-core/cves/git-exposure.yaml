@@ -1,0 +1,94 @@
+# Git Exposure Scanner CVE Definition
+cve_id: GIT-EXPOSURE-001
+name: "Git Directory Exposure Scanner"
+category: INFO_LEAK
+severity: HIGH
+cvss: 7.5
+description: "Scans for exposed .git directories and extracts sensitive information including secrets, contributors, and deployment data"
+
+# Input requirements
+inputs:
+  - name: target_url
+    type: TEXT
+    required: true
+    description: "Target URL to scan"
+    pattern: "^https?://"
+
+  - name: dump_repo
+    type: BOOLEAN
+    required: false
+    default: false
+    description: "Download entire .git directory"
+
+  - name: output_dir
+    type: TEXT
+    required: false
+    default: "./dumped-git"
+    description: "Output directory for dumped files"
+
+# Detection files to check
+payloads:
+  essential_files:
+    - ".git/HEAD"
+    - ".git/config"
+    - ".git/index"
+  
+  branch_files:
+    - ".git/refs/heads/master"
+    - ".git/refs/heads/main"
+    - ".git/refs/heads/develop"
+    - ".git/refs/heads/staging"
+    - ".git/refs/heads/production"
+  
+  log_files:
+    - ".git/logs/HEAD"
+    - ".git/logs/refs/heads/master"
+    - ".git/logs/refs/heads/main"
+
+# Injection strategy
+injection:
+  locations:
+    - url_path  # Append to URL path
+  method: direct
+  encoding:
+    - none
+
+# Validation
+detection:
+  type: multi
+  methods:
+    - content_validation
+    - response_code
+  
+  # Validation patterns for each file type
+  patterns:
+    HEAD:
+      - "ref: refs/heads/"
+      - "^[a-f0-9]{40}$"
+    
+    config:
+      - "[core]"
+      - "[remote"
+      - "repositoryformatversion"
+    
+    index:
+      - "^DIRC"  # Magic bytes for git index
+
+  success_indicators:
+    - valid_git_file_content
+    - status_200
+    - not_html_content
+
+# Execution settings
+execution:
+  timeout: 45
+  max_requests: 50
+  rate_limit: 5
+
+# Metadata
+references:
+  - "https://git-scm.com/docs/gitrepository-layout"
+  - "https://github.com/internetwache/GitTools"
+
+author: "Moovendhan V (CyberTechMind)"
+date_added: "2025-12-27"

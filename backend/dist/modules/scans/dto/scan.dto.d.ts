@@ -9,13 +9,34 @@ export declare enum ScanStatus {
     COMPLETED = "COMPLETED",
     FAILED = "FAILED"
 }
+export declare enum PortState {
+    OPEN = "open",
+    CLOSED = "closed",
+    FILTERED = "filtered"
+}
+export declare class SubdomainResult {
+    subdomain: string;
+    ip: string[];
+    discovered_at: string;
+}
+export declare class PortResult {
+    subdomain: string;
+    port: number;
+    service: string;
+    state: PortState;
+    discovered_at: string;
+}
 export declare class Scan {
     id: string;
     name: string;
     target: string;
     type: ScanType;
     status: ScanStatus;
+    progress?: number;
     results?: any;
+    subdomains?: SubdomainResult[];
+    openPorts?: PortResult[];
+    error?: string;
     startedAt?: Date;
     completedAt?: Date;
     createdAt: Date;

@@ -38,6 +38,9 @@ let ScansResolver = class ScansResolver {
     async startScan(id) {
         return this.scansService.startScan(id);
     }
+    async startQuickScan(target) {
+        return this.scansService.startQuickScan(target);
+    }
 };
 exports.ScansResolver = ScansResolver;
 __decorate([
@@ -83,6 +86,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ScansResolver.prototype, "startScan", null);
+__decorate([
+    (0, graphql_1.Mutation)(() => scan_dto_1.Scan),
+    __param(0, (0, graphql_1.Args)('target')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ScansResolver.prototype, "startQuickScan", null);
 exports.ScansResolver = ScansResolver = __decorate([
     (0, graphql_1.Resolver)(() => scan_dto_1.Scan),
     __metadata("design:paramtypes", [scans_service_1.ScansService])

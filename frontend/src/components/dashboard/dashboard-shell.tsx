@@ -14,11 +14,11 @@ export function DashboardShell({ children, className }: DashboardShellProps) {
   React.useEffect(() => {
     startRender()
     return () => endRender()
-  })
+  }, []) // Empty array = run once on mount only
 
   return (
     <>
-      <main 
+      <main
         id="main-content"
         className={cn('flex flex-col gap-8 p-6', className)}
         role="main"

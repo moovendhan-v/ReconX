@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ScanListResponse = exports.ScanFiltersInput = exports.UpdateScanInput = exports.CreateScanInput = exports.Scan = exports.ScanStatus = exports.ScanType = void 0;
+exports.ScanListResponse = exports.ScanFiltersInput = exports.UpdateScanInput = exports.CreateScanInput = exports.Scan = exports.PortResult = exports.SubdomainResult = exports.PortState = exports.ScanStatus = exports.ScanType = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
 const graphql_type_json_1 = require("graphql-type-json");
@@ -26,8 +26,59 @@ var ScanStatus;
     ScanStatus["COMPLETED"] = "COMPLETED";
     ScanStatus["FAILED"] = "FAILED";
 })(ScanStatus || (exports.ScanStatus = ScanStatus = {}));
+var PortState;
+(function (PortState) {
+    PortState["OPEN"] = "open";
+    PortState["CLOSED"] = "closed";
+    PortState["FILTERED"] = "filtered";
+})(PortState || (exports.PortState = PortState = {}));
 (0, graphql_1.registerEnumType)(ScanType, { name: 'ScanType' });
 (0, graphql_1.registerEnumType)(ScanStatus, { name: 'ScanStatus' });
+(0, graphql_1.registerEnumType)(PortState, { name: 'PortState' });
+let SubdomainResult = class SubdomainResult {
+};
+exports.SubdomainResult = SubdomainResult;
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], SubdomainResult.prototype, "subdomain", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [String]),
+    __metadata("design:type", Array)
+], SubdomainResult.prototype, "ip", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], SubdomainResult.prototype, "discovered_at", void 0);
+exports.SubdomainResult = SubdomainResult = __decorate([
+    (0, graphql_1.ObjectType)()
+], SubdomainResult);
+let PortResult = class PortResult {
+};
+exports.PortResult = PortResult;
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], PortResult.prototype, "subdomain", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Int),
+    __metadata("design:type", Number)
+], PortResult.prototype, "port", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], PortResult.prototype, "service", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => PortState),
+    __metadata("design:type", String)
+], PortResult.prototype, "state", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], PortResult.prototype, "discovered_at", void 0);
+exports.PortResult = PortResult = __decorate([
+    (0, graphql_1.ObjectType)()
+], PortResult);
 let Scan = class Scan {
 };
 exports.Scan = Scan;
@@ -52,9 +103,25 @@ __decorate([
     __metadata("design:type", String)
 ], Scan.prototype, "status", void 0);
 __decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    __metadata("design:type", Number)
+], Scan.prototype, "progress", void 0);
+__decorate([
     (0, graphql_1.Field)(() => graphql_type_json_1.default, { nullable: true }),
     __metadata("design:type", Object)
 ], Scan.prototype, "results", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [SubdomainResult], { nullable: true }),
+    __metadata("design:type", Array)
+], Scan.prototype, "subdomains", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [PortResult], { nullable: true }),
+    __metadata("design:type", Array)
+], Scan.prototype, "openPorts", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", String)
+], Scan.prototype, "error", void 0);
 __decorate([
     (0, graphql_1.Field)(() => Date, { nullable: true }),
     __metadata("design:type", Date)

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.executionLogsRelations = exports.pocsRelations = exports.cvesRelations = exports.usersRelations = exports.activityLogs = exports.projects = exports.reports = exports.scans = exports.executionLogs = exports.pocs = exports.cves = exports.users = exports.reportTypeEnum = exports.scanTypeEnum = exports.scanStatusEnum = exports.executionStatusEnum = exports.severityEnum = void 0;
+exports.executionLogsRelations = exports.pocsRelations = exports.cvesRelations = exports.usersRelations = exports.activityLogs = exports.projects = exports.reports = exports.scans = exports.PortState = exports.executionLogs = exports.pocs = exports.cves = exports.users = exports.reportTypeEnum = exports.scanTypeEnum = exports.scanStatusEnum = exports.executionStatusEnum = exports.severityEnum = void 0;
 const pg_core_1 = require("drizzle-orm/pg-core");
 const drizzle_orm_1 = require("drizzle-orm");
 exports.severityEnum = (0, pg_core_1.pgEnum)('severity', ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']);
@@ -52,13 +52,23 @@ exports.executionLogs = (0, pg_core_1.pgTable)('execution_logs', {
     status: (0, exports.executionStatusEnum)('status').notNull(),
     executedAt: (0, pg_core_1.timestamp)('executed_at').defaultNow().notNull(),
 });
+var PortState;
+(function (PortState) {
+    PortState["OPEN"] = "open";
+    PortState["CLOSED"] = "closed";
+    PortState["FILTERED"] = "filtered";
+})(PortState || (exports.PortState = PortState = {}));
 exports.scans = (0, pg_core_1.pgTable)('scans', {
     id: (0, pg_core_1.uuid)('id').defaultRandom().primaryKey(),
     name: (0, pg_core_1.varchar)('name', { length: 255 }).notNull(),
     target: (0, pg_core_1.varchar)('target', { length: 500 }).notNull(),
     type: (0, exports.scanTypeEnum)('type').notNull(),
     status: (0, exports.scanStatusEnum)('status').notNull().default('PENDING'),
+    progress: (0, pg_core_1.decimal)('progress', { precision: 5, scale: 2 }).default('0'),
     results: (0, pg_core_1.jsonb)('results'),
+    subdomains: (0, pg_core_1.jsonb)('subdomains').$type(),
+    openPorts: (0, pg_core_1.jsonb)('open_ports').$type(),
+    error: (0, pg_core_1.text)('error'),
     startedAt: (0, pg_core_1.timestamp)('started_at'),
     completedAt: (0, pg_core_1.timestamp)('completed_at'),
     createdAt: (0, pg_core_1.timestamp)('created_at').defaultNow().notNull(),

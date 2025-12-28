@@ -60,6 +60,27 @@ export const executionLogs = pgTable('execution_logs', {
   executedAt: timestamp('executed_at').defaultNow().notNull(),
 });
 
+// Scan result type interfaces
+export enum PortState {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  FILTERED = 'filtered',
+}
+
+export interface SubdomainResult {
+  subdomain: string;
+  ip: string[];
+  discovered_at: string;
+}
+
+export interface PortResult {
+  subdomain: string;
+  port: number;
+  service: string;
+  state: PortState;
+  discovered_at: string;
+}
+
 // Scans Table
 export const scans = pgTable('scans', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -67,7 +88,11 @@ export const scans = pgTable('scans', {
   target: varchar('target', { length: 500 }).notNull(),
   type: scanTypeEnum('type').notNull(),
   status: scanStatusEnum('status').notNull().default('PENDING'),
+  progress: decimal('progress', { precision: 5, scale: 2 }).default('0'),
   results: jsonb('results'),
+  subdomains: jsonb('subdomains').$type<SubdomainResult[]>(),
+  openPorts: jsonb('open_ports').$type<PortResult[]>(),
+  error: text('error'),
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

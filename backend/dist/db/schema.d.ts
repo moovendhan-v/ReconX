@@ -463,6 +463,23 @@ export declare const executionLogs: import("drizzle-orm/pg-core").PgTableWithCol
     };
     dialect: "pg";
 }>;
+export declare enum PortState {
+    OPEN = "open",
+    CLOSED = "closed",
+    FILTERED = "filtered"
+}
+export interface SubdomainResult {
+    subdomain: string;
+    ip: string[];
+    discovered_at: string;
+}
+export interface PortResult {
+    subdomain: string;
+    port: number;
+    service: string;
+    state: PortState;
+    discovered_at: string;
+}
 export declare const scans: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "scans";
     schema: undefined;
@@ -527,6 +544,18 @@ export declare const scans: import("drizzle-orm/pg-core").PgTableWithColumns<{
             enumValues: ["PENDING", "RUNNING", "COMPLETED", "FAILED"];
             baseColumn: never;
         }, {}, {}>;
+        progress: import("drizzle-orm/pg-core").PgColumn<{
+            name: "progress";
+            tableName: "scans";
+            dataType: "string";
+            columnType: "PgNumeric";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
         results: import("drizzle-orm/pg-core").PgColumn<{
             name: "results";
             tableName: "scans";
@@ -537,6 +566,42 @@ export declare const scans: import("drizzle-orm/pg-core").PgTableWithColumns<{
             notNull: false;
             hasDefault: false;
             enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        subdomains: import("drizzle-orm/pg-core").PgColumn<{
+            name: "subdomains";
+            tableName: "scans";
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: SubdomainResult[];
+            driverParam: unknown;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        openPorts: import("drizzle-orm/pg-core").PgColumn<{
+            name: "open_ports";
+            tableName: "scans";
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: PortResult[];
+            driverParam: unknown;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        error: import("drizzle-orm/pg-core").PgColumn<{
+            name: "error";
+            tableName: "scans";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
             baseColumn: never;
         }, {}, {}>;
         startedAt: import("drizzle-orm/pg-core").PgColumn<{

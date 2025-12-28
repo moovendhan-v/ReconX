@@ -8,7 +8,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private client: postgres.Sql;
   public db: ReturnType<typeof drizzle>;
 
-  async onModuleInit() {
+  constructor() {
+    // Initialize database connection synchronously so it's available when getDb() is called
     const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:password@localhost:5432/bughunting';
 
     this.client = postgres(connectionString, {
@@ -18,8 +19,17 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.db = drizzle(this.client, { schema });
+  }
 
-    console.log('✓ Database connected');
+  async onModuleInit() {
+    // Verify connection
+    try {
+      await this.client`SELECT 1`;
+      console.log('✓ Database connected');
+    } catch (error) {
+      console.error('✗ Database connection failed:', error);
+      throw error;
+    }
   }
 
   async onModuleDestroy() {

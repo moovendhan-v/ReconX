@@ -9,4 +9,5 @@ export declare class ScansResolver {
     updateScan(id: string, input: UpdateScanInput): Promise<Scan>;
     deleteScan(id: string): Promise<boolean>;
     startScan(id: string): Promise<Scan>;
+    startQuickScan(target: string): Promise<Scan>;
 }

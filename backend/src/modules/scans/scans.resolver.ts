@@ -49,4 +49,9 @@ export class ScansResolver {
     async startScan(@Args('id') id: string): Promise<Scan> {
         return this.scansService.startScan(id);
     }
+
+    @Mutation(() => Scan)
+    async startQuickScan(@Args('target') target: string): Promise<Scan> {
+        return this.scansService.startQuickScan(target);
+    }
 }

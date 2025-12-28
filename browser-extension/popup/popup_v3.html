@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReconX - Dynamic CVE Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/popup_v3.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" />
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" />
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" />
+                </svg>
+                <h1>ReconX</h1>
+            </div>
+            <div class="status" id="scanStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Ready</span>
+            </div>
+        </header>
+
+        <!-- Target Configuration -->
+        <section class="config-section">
+            <h2>🎯 Target Configuration</h2>
+            <div class="input-group">
+                <label for="targetUrl">Target URL *</label>
+                <input type="text" id="targetUrl" placeholder="https://example.com" />
+            </div>
+            <div class="input-group">
+                <label>
+                    <input type="checkbox" id="autoDetect" checked />
+                    Auto-detect from current tab
+                </label>
+            </div>
+        </section>
+
+        <!-- CVE List -->
+        <section class="exploits-section">
+            <div class="section-header">
+                <h2>📚 Available CVEs (<span id="exploitCount">0</span>)</h2>
+                <button id="refreshExploitsBtn" class="btn btn-tiny">Refresh</button>
+            </div>
+
+            <!-- CVE List -->
+            <div id="exploitList" class="exploit-list">
+                <div class="loading">Loading CVEs...</div>
+            </div>
+        </section>
+
+        <!-- Execute Button -->
+        <section class="execute-section">
+            <button id="executeBtn" class="btn btn-exploit" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" stroke="currentColor" stroke-width="2"
+                        fill="currentColor" />
+                </svg>
+                Execute CVE
+            </button>
+            <div class="action-buttons">
+                <button id="clearLogsBtn" class="btn btn-secondary">Clear Logs</button>
+                <button id="exportBtn" class="btn btn-secondary">Export Results</button>
+            </div>
+        </section>
+
+        <!-- Statistics -->
+        <section class="stats-section" id="statsSection" style="display: none;">
+            <h2>📊 Execution Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value" id="statSuccess">0</div>
+                    <div class="stat-label">Vulnerabilities</div>
+                </div>
+                <div class="stat-card error">
+                    <div class="stat-value" id="statFailed">0</div>
+                    <div class="stat-label">Clean</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Logs -->
+        <section class="logs-section">
+            <div class="logs-header">
+                <h2>📡 Execution Logs</h2>
+            </div>
+            <div id="logsContainer" class="logs-container">
+                <div class="log-entry info">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-message">Waiting for execution...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>ReconX Dynamic CVE v3.0</span>
+            <span id="backendStatus">Backend: <span id="backendUrl">localhost:3001</span></span>
+        </footer>
+    </div>
+
+    <script src="../scripts/popup_v3.js"></script>
+</body>
+
+</html>

@@ -11,14 +11,18 @@ const common_1 = require("@nestjs/common");
 const scans_service_1 = require("./scans.service");
 const scans_resolver_1 = require("./scans.resolver");
 const database_module_1 = require("../database/database.module");
+const redis_module_1 = require("../redis/redis.module");
+const scan_events_service_1 = require("./scan-events.service");
+const scans_gateway_1 = require("./scans.gateway");
+const scan_orchestrator_service_1 = require("./scan-orchestrator.service");
 let ScansModule = class ScansModule {
 };
 exports.ScansModule = ScansModule;
 exports.ScansModule = ScansModule = __decorate([
     (0, common_1.Module)({
-        imports: [database_module_1.DatabaseModule],
-        providers: [scans_service_1.ScansService, scans_resolver_1.ScansResolver],
-        exports: [scans_service_1.ScansService],
+        imports: [database_module_1.DatabaseModule, redis_module_1.RedisModule],
+        providers: [scans_service_1.ScansService, scans_resolver_1.ScansResolver, scan_events_service_1.ScanEventsService, scans_gateway_1.ScansGateway, scan_orchestrator_service_1.ScanOrchestratorService],
+        exports: [scans_service_1.ScansService, scan_events_service_1.ScanEventsService],
     })
 ], ScansModule);
 //# sourceMappingURL=scans.module.js.map
